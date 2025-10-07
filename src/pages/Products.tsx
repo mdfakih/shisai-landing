@@ -269,56 +269,58 @@ const Products = () => {
 
         {/* Product Modal */}
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-auto">
-            <DialogHeader className="px-1 sm:px-6">
-              <DialogTitle className="text-xl sm:text-2xl">{selectedCategoryData?.name}</DialogTitle>
-              <DialogDescription className="text-sm sm:text-base">{selectedCategoryData?.description}</DialogDescription>
-            </DialogHeader>
-            
-            {selectedCategoryData && (
-              <Carousel className="w-full mt-4 sm:mt-6 px-1 sm:px-6">
-                <CarouselContent className="-ml-2 sm:-ml-4">
-                  {selectedCategoryData.products.map((product, index) => (
-                    <CarouselItem key={index} className="pl-2 sm:pl-4">
-                      <div className="flex flex-col gap-4 sm:gap-6">
-                        {/* Product Image */}
-                        <div className="w-full">
-                          <div className="relative aspect-square sm:aspect-video overflow-hidden rounded-lg bg-muted">
-                            <img
-                              src={product.image}
-                              alt={product.name}
-                              className="w-full h-full object-contain p-2 sm:p-4"
-                            />
-                          </div>
-                        </div>
-                        
-                        {/* Product Content */}
-                        <div className="space-y-3 sm:space-y-4 px-1">
-                          <h3 className="text-lg sm:text-xl font-semibold text-foreground leading-tight">{product.name}</h3>
-                          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{product.description}</p>
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-2 sm:pt-4">
-                            <div className="space-y-1">
-                              <span className="text-xs sm:text-sm font-semibold text-foreground">Size Range</span>
-                              <p className="text-xs sm:text-sm text-muted-foreground break-words">{product.sizes}</p>
-                            </div>
-                            <div className="space-y-1">
-                              <span className="text-xs sm:text-sm font-semibold text-foreground">Grade</span>
-                              <p className="text-xs sm:text-sm text-muted-foreground break-words">{product.grades}</p>
-                            </div>
-                            <div className="space-y-1">
-                              <span className="text-xs sm:text-sm font-semibold text-foreground">Finish</span>
-                              <p className="text-xs sm:text-sm text-muted-foreground break-words">{product.finish}</p>
+          <DialogContent className="max-w-[90vw] sm:max-w-4xl max-h-[90vh] overflow-hidden mx-auto p-0">
+            <div className="overflow-y-auto max-h-[90vh] px-4 sm:px-6 py-4">
+              <DialogHeader className="mb-4">
+                <DialogTitle className="text-lg sm:text-2xl">{selectedCategoryData?.name}</DialogTitle>
+                <DialogDescription className="text-xs sm:text-base">{selectedCategoryData?.description}</DialogDescription>
+              </DialogHeader>
+              
+              {selectedCategoryData && (
+                <Carousel className="w-full relative">
+                  <CarouselContent className="-ml-4">
+                    {selectedCategoryData.products.map((product, index) => (
+                      <CarouselItem key={index} className="pl-4">
+                        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+                          {/* Product Image - Properly sized for mobile */}
+                          <div className="w-full sm:w-1/2 flex-shrink-0">
+                            <div className="relative aspect-video overflow-hidden rounded-lg bg-muted">
+                              <img
+                                src={product.image}
+                                alt={product.name}
+                                className="w-full h-full object-contain p-2 sm:p-4"
+                              />
                             </div>
                           </div>
+                          
+                          {/* Product Content */}
+                          <div className="w-full sm:w-1/2 space-y-2 sm:space-y-4">
+                            <h3 className="text-base sm:text-xl font-semibold text-foreground leading-tight">{product.name}</h3>
+                            <p className="text-xs sm:text-base text-muted-foreground leading-relaxed">{product.description}</p>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 pt-2 sm:pt-4">
+                              <div className="space-y-1">
+                                <span className="text-xs sm:text-sm font-semibold text-foreground">Size Range</span>
+                                <p className="text-xs sm:text-sm text-muted-foreground break-words">{product.sizes}</p>
+                              </div>
+                              <div className="space-y-1">
+                                <span className="text-xs sm:text-sm font-semibold text-foreground">Grade</span>
+                                <p className="text-xs sm:text-sm text-muted-foreground break-words">{product.grades}</p>
+                              </div>
+                              <div className="space-y-1">
+                                <span className="text-xs sm:text-sm font-semibold text-foreground">Finish</span>
+                                <p className="text-xs sm:text-sm text-muted-foreground break-words">{product.finish}</p>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="left-1 sm:left-2 h-6 w-6 sm:h-8 sm:w-8" />
-                <CarouselNext className="right-1 sm:right-2 h-6 w-6 sm:h-8 sm:w-8" />
-              </Carousel>
-            )}
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselPrevious className="left-0 sm:left-2 h-8 w-8 translate-x-0" />
+                  <CarouselNext className="right-0 sm:right-2 h-8 w-8 translate-x-0" />
+                </Carousel>
+              )}
+            </div>
           </DialogContent>
         </Dialog>
 
