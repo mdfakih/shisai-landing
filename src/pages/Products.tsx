@@ -269,45 +269,45 @@ const Products = () => {
 
         {/* Product Modal */}
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-2xl">{selectedCategoryData?.name}</DialogTitle>
-              <DialogDescription>{selectedCategoryData?.description}</DialogDescription>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-auto">
+            <DialogHeader className="px-1 sm:px-6">
+              <DialogTitle className="text-xl sm:text-2xl">{selectedCategoryData?.name}</DialogTitle>
+              <DialogDescription className="text-sm sm:text-base">{selectedCategoryData?.description}</DialogDescription>
             </DialogHeader>
             
             {selectedCategoryData && (
-              <Carousel className="w-full mt-6">
-                <CarouselContent>
+              <Carousel className="w-full mt-4 sm:mt-6 px-1 sm:px-6">
+                <CarouselContent className="-ml-2 sm:-ml-4">
                   {selectedCategoryData.products.map((product, index) => (
-                    <CarouselItem key={index}>
-                      <div className="flex flex-col lg:flex-row gap-6">
-                        {/* Product Image - Left Side */}
-                        <div className="flex-shrink-0 w-full lg:w-1/2">
-                          <div className="relative aspect-square lg:aspect-video overflow-hidden rounded-lg bg-muted">
+                    <CarouselItem key={index} className="pl-2 sm:pl-4">
+                      <div className="flex flex-col gap-4 sm:gap-6">
+                        {/* Product Image */}
+                        <div className="w-full">
+                          <div className="relative aspect-square sm:aspect-video overflow-hidden rounded-lg bg-muted">
                             <img
                               src={product.image}
                               alt={product.name}
-                              className="w-full h-full object-contain"
+                              className="w-full h-full object-contain p-2 sm:p-4"
                             />
                           </div>
                         </div>
                         
-                        {/* Product Content - Right Side */}
-                        <div className="flex-1 space-y-4">
-                          <h3 className="text-xl font-semibold text-foreground">{product.name}</h3>
-                          <p className="text-muted-foreground">{product.description}</p>
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
+                        {/* Product Content */}
+                        <div className="space-y-3 sm:space-y-4 px-1">
+                          <h3 className="text-lg sm:text-xl font-semibold text-foreground leading-tight">{product.name}</h3>
+                          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{product.description}</p>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-2 sm:pt-4">
                             <div className="space-y-1">
-                              <span className="text-sm font-semibold text-foreground">Size Range</span>
-                              <p className="text-sm text-muted-foreground">{product.sizes}</p>
+                              <span className="text-xs sm:text-sm font-semibold text-foreground">Size Range</span>
+                              <p className="text-xs sm:text-sm text-muted-foreground break-words">{product.sizes}</p>
                             </div>
                             <div className="space-y-1">
-                              <span className="text-sm font-semibold text-foreground">Grade</span>
-                              <p className="text-sm text-muted-foreground">{product.grades}</p>
+                              <span className="text-xs sm:text-sm font-semibold text-foreground">Grade</span>
+                              <p className="text-xs sm:text-sm text-muted-foreground break-words">{product.grades}</p>
                             </div>
                             <div className="space-y-1">
-                              <span className="text-sm font-semibold text-foreground">Finish</span>
-                              <p className="text-sm text-muted-foreground">{product.finish}</p>
+                              <span className="text-xs sm:text-sm font-semibold text-foreground">Finish</span>
+                              <p className="text-xs sm:text-sm text-muted-foreground break-words">{product.finish}</p>
                             </div>
                           </div>
                         </div>
@@ -315,8 +315,8 @@ const Products = () => {
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                <CarouselPrevious className="left-2" />
-                <CarouselNext className="right-2" />
+                <CarouselPrevious className="left-1 sm:left-2 h-6 w-6 sm:h-8 sm:w-8" />
+                <CarouselNext className="right-1 sm:right-2 h-6 w-6 sm:h-8 sm:w-8" />
               </Carousel>
             )}
           </DialogContent>
