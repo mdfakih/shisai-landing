@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import productsImage1 from "@/assets/products-1.png";
 import productsImage2 from "@/assets/products-2.jpg";
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Products = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -333,11 +334,11 @@ const Products = () => {
             <p className="text-muted-foreground mb-6">
               Contact us for specialized fittings tailored to your specific requirements
             </p>
-            <a href="/contact">
+            <Link to="/contact">
               <button className="bg-primary text-primary-foreground px-6 py-3 rounded-md hover:bg-primary/90 transition-colors">
                 Request a Quote
               </button>
-            </a>
+            </Link>
           </div>
         </div>
       </div>
