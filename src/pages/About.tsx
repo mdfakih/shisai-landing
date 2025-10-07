@@ -4,46 +4,14 @@ import teamImage from "@/assets/team-machinery.jpg";
 
 const About = () => {
   const machinery = [
-    {
-      name: "CNC Machine",
-      purpose: "High-precision cutting and shaping of stainless steel components",
-      benefit: "Exceptional dimensional accuracy and intricate designs",
-    },
-    {
-      name: "Power Press Machine",
-      purpose: "Cutting, bending, and forming stainless steel components",
-      benefit: "Efficiently handles high-volume production with consistent output",
-    },
-    {
-      name: "Hydraulic Press Machine",
-      purpose: "Molding and forming components using controlled pressure",
-      benefit: "Uniformity and accuracy for complex shaping needs",
-    },
-    {
-      name: "Lathe Machine",
-      purpose: "Shaping cylindrical parts through turning and cutting operations",
-      benefit: "Smooth, precise finishes for various components",
-    },
-    {
-      name: "Welding Unit",
-      purpose: "Joining metal parts with seamless and durable connections",
-      benefit: "Strong, leak-proof fittings suitable for pharmaceutical use",
-    },
-    {
-      name: "Polishing Machine",
-      purpose: "Smoothing and enhancing surface finishes of components",
-      benefit: "Mirror-like polish ideal for high-standard applications",
-    },
-    {
-      name: "Laser Marking Machine",
-      purpose: "Engraving permanent markings like logos or serial numbers",
-      benefit: "Clear, precise branding and traceability",
-    },
-    {
-      name: "Bandsaw",
-      purpose: "Cutting raw stainless steel material into precise sizes",
-      benefit: "Efficiency and accuracy during initial production stages",
-    },
+    "CNC Machine",
+    "Power Press Machine", 
+    "Hydraulic Press Machine",
+    "Lathe Machine",
+    "Welding Unit",
+    "Polishing Machine",
+    "Laser Marking Machine",
+    "Bandsaw",
   ];
 
   const values = [
@@ -98,7 +66,7 @@ const About = () => {
             <img
               src={teamImage}
               alt="Shisai Steel Industries Team"
-              className="rounded-lg shadow-lg w-full h-auto"
+              className="rounded-lg shadow-lg w-full h-80 object-cover"
             />
           </div>
         </div>
@@ -141,21 +109,11 @@ const About = () => {
             {machinery.map((machine, index) => (
               <Card
                 key={index}
-                className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 text-center"
               >
                 <CardHeader>
-                  <CardTitle className="text-lg text-foreground">{machine.name}</CardTitle>
+                  <CardTitle className="text-lg text-foreground">{machine}</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <div>
-                    <span className="text-sm font-semibold text-foreground">Purpose: </span>
-                    <p className="text-sm text-muted-foreground">{machine.purpose}</p>
-                  </div>
-                  <div>
-                    <span className="text-sm font-semibold text-foreground">Benefit: </span>
-                    <p className="text-sm text-muted-foreground">{machine.benefit}</p>
-                  </div>
-                </CardContent>
               </Card>
             ))}
           </div>

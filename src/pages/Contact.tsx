@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const Contact = () => {
   const { toast } = useToast();
+  const contactFormRef = useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -28,23 +29,30 @@ const Contact = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const contactInfo = [
-    {
+  const scrollToForm = () => {
+    contactFormRef.current?.scrollIntoView({ 
+      behavior: 'smooth', 
+      block: 'start' 
+    });
+  };
+
+  const contactInfo = {
+    address: {
       icon: MapPin,
       title: "Address",
       details: ["Unit No. 13, Singh Ind. Estate", "Kherpada, Waliv", "Vasai East-401208, India"],
     },
-    {
+    phone: {
       icon: Phone,
       title: "Phone",
       details: ["+91 9992252256", "+91 9082780156"],
     },
-    {
+    email: {
       icon: Mail,
       title: "Email",
       details: ["shisaistee@gmail.com", "triclover.india@gmail.com"],
     },
-  ];
+  };
 
   return (
     <div className="min-h-screen pt-32 pb-20 px-4">
@@ -59,7 +67,7 @@ const Contact = () => {
 
         <div className="grid md:grid-cols-2 gap-8">
           {/* Contact Form */}
-          <Card className="animate-fade-in-left">
+          <Card ref={contactFormRef} className="animate-fade-in-left">
             <CardHeader>
               <CardTitle className="text-2xl text-foreground">Send us a Message</CardTitle>
               <CardDescription>Fill out the form below and we'll respond within 24 hours</CardDescription>
@@ -130,25 +138,59 @@ const Contact = () => {
 
           {/* Contact Information */}
           <div className="space-y-6 animate-fade-in-right">
-            {contactInfo.map((info, index) => (
-              <Card key={index} className="hover:shadow-lg transition-all duration-300">
-                <CardHeader>
-                  <div className="flex items-center space-x-3">
-                    <div className="bg-primary/10 p-3 rounded-lg">
-                      <info.icon className="h-6 w-6 text-primary" />
-                    </div>
-                    <CardTitle className="text-xl text-foreground">{info.title}</CardTitle>
+            {/* Consolidated Contact Info Card */}
+            <Card className="hover:shadow-lg transition-all duration-300">
+              <CardHeader>
+                <CardTitle className="text-2xl text-foreground">Contact Information</CardTitle>
+                <CardDescription>Get in touch with us through any of these channels</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Address */}
+                <div className="flex items-start space-x-4">
+                  <div className="bg-primary/10 p-3 rounded-lg flex-shrink-0">
+                    <contactInfo.address.icon className="h-5 w-5 text-primary" />
                   </div>
-                </CardHeader>
-                <CardContent>
-                  {info.details.map((detail, idx) => (
-                    <p key={idx} className="text-muted-foreground">
-                      {detail}
-                    </p>
-                  ))}
-                </CardContent>
-              </Card>
-            ))}
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-2">{contactInfo.address.title}</h4>
+                    {contactInfo.address.details.map((detail, idx) => (
+                      <p key={idx} className="text-muted-foreground text-sm">
+                        {detail}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Phone */}
+                <div className="flex items-start space-x-4">
+                  <div className="bg-primary/10 p-3 rounded-lg flex-shrink-0">
+                    <contactInfo.phone.icon className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-2">{contactInfo.phone.title}</h4>
+                    {contactInfo.phone.details.map((detail, idx) => (
+                      <a key={idx} href={`tel:${detail}`} className="text-muted-foreground text-sm hover:text-primary transition-colors block">
+                        {detail}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Email */}
+                <div className="flex items-start space-x-4">
+                  <div className="bg-primary/10 p-3 rounded-lg flex-shrink-0">
+                    <contactInfo.email.icon className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-2">{contactInfo.email.title}</h4>
+                    {contactInfo.email.details.map((detail, idx) => (
+                      <a key={idx} href={`mailto:${detail}`} className="text-muted-foreground text-sm hover:text-primary transition-colors block">
+                        {detail}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Business Hours */}
             <Card className="bg-primary text-primary-foreground">
@@ -186,7 +228,7 @@ const Contact = () => {
               <p className="text-muted-foreground mb-4">
                 Located in Vasai East, our facility is equipped with state-of-the-art machinery and a dedicated team ready to serve your needs.
               </p>
-              <Button variant="outline" size="lg">
+              <Button variant="outline" size="lg" onClick={scrollToForm}>
                 Schedule a Visit
               </Button>
             </CardContent>

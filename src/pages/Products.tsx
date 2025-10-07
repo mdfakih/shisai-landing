@@ -280,18 +280,23 @@ const Products = () => {
                 <CarouselContent>
                   {selectedCategoryData.products.map((product, index) => (
                     <CarouselItem key={index}>
-                      <div className="space-y-6">
-                        <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
-                          <img
-                            src={product.image}
-                            alt={product.name}
-                            className="w-full h-full object-contain"
-                          />
+                      <div className="flex flex-col lg:flex-row gap-6">
+                        {/* Product Image - Left Side */}
+                        <div className="flex-shrink-0 w-full lg:w-1/2">
+                          <div className="relative aspect-square lg:aspect-video overflow-hidden rounded-lg bg-muted">
+                            <img
+                              src={product.image}
+                              alt={product.name}
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
                         </div>
-                        <div className="space-y-4">
+                        
+                        {/* Product Content - Right Side */}
+                        <div className="flex-1 space-y-4">
                           <h3 className="text-xl font-semibold text-foreground">{product.name}</h3>
                           <p className="text-muted-foreground">{product.description}</p>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
                             <div className="space-y-1">
                               <span className="text-sm font-semibold text-foreground">Size Range</span>
                               <p className="text-sm text-muted-foreground">{product.sizes}</p>
