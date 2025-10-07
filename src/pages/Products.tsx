@@ -1,128 +1,225 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
+import productsImage1 from "@/assets/products-1.png";
+import productsImage2 from "@/assets/products-2.jpg";
+import { ArrowRight } from "lucide-react";
 
 const Products = () => {
-  const products = [
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const productCategories = [
     {
-      name: "TC Clamp (Cast)",
-      sizes: '1/2" TO 12"',
-      grades: "SS304, SS316",
-      finish: "MATT, GLOSSY",
-      description: "A TC Clamp is a stainless steel connector ensuring a secure, leak-proof seal in sanitary piping systems.",
+      id: "clamps-ferrules",
+      name: "Clamps & Ferrules",
+      description: "Essential connectors and end fittings for secure, sanitary pipe connections",
+      image: productsImage1,
+      products: [
+        {
+          name: "TC Clamp (Cast)",
+          sizes: '1/2" TO 12"',
+          grades: "SS304, SS316",
+          finish: "MATT, GLOSSY",
+          description: "A TC Clamp is a stainless steel connector ensuring a secure, leak-proof seal in sanitary piping systems.",
+          image: productsImage1,
+        },
+        {
+          name: "TC Clamp (Indian)",
+          sizes: '3" TO 20"',
+          grades: "SS304, SS316, SS316L",
+          finish: "MATT, GLOSSY",
+          description: "Enhanced strength and durability for secure connections in high-pressure sanitary piping systems.",
+          image: productsImage1,
+        },
+        {
+          name: "Orbital Weld Ferrule",
+          sizes: '1/2" TO 20"',
+          grades: "SS304, SS316, SS316L",
+          finish: "MATT, MIRROR",
+          description: "Enables precise, weld-ready connections in sanitary piping systems for high-purity applications.",
+          image: productsImage1,
+        },
+        {
+          name: "Socket Weld Ferrule",
+          sizes: '1/2" TO 20"',
+          grades: "SS304, SS316, SS316L",
+          finish: "MATT, GLOSSY",
+          description: "Allows secure, weldable connections in sanitary piping systems for high-strength applications.",
+          image: productsImage1,
+        },
+        {
+          name: "Blind Ferrule",
+          sizes: '1/2" TO 20"',
+          grades: "SS304, SS316, SS316L",
+          finish: "MATT, MIRROR",
+          description: "Used to securely cap off unused sanitary piping ports in hygienic systems.",
+          image: productsImage1,
+        },
+        {
+          name: "Pipe Clamp (PHC)",
+          sizes: '1/2" TO 12"',
+          grades: "SS304, SS316",
+          finish: "POLISHED",
+          description: "Securely supports and stabilizes pipes in sanitary and industrial piping systems.",
+          image: productsImage1,
+        },
+      ],
     },
     {
-      name: "TC Clamp (Indian)",
-      sizes: '3" TO 20"',
-      grades: "SS304, SS316, SS316L",
-      finish: "MATT, GLOSSY",
-      description: "Enhanced strength and durability for secure connections in high-pressure sanitary piping systems.",
+      id: "tees",
+      name: "Tees",
+      description: "Flow distribution fittings for splitting or combining flow directions",
+      image: productsImage2,
+      products: [
+        {
+          name: "Equal Tee",
+          sizes: '1/2" TO 6"',
+          grades: "SS304, SS316, SS316L",
+          finish: "MATT, MIRROR",
+          description: "Evenly splits or combines flow in sanitary piping systems with three equally sized outlets.",
+          image: productsImage2,
+        },
+        {
+          name: "TC End Equal Tee",
+          sizes: '1/2" TO 4"',
+          grades: "SS304, SS316, SS316L",
+          finish: "MATT, MIRROR",
+          description: "Evenly splits or combines flow in sanitary systems, featuring tri-clamp connections on all three equal-sized ends.",
+          image: productsImage2,
+        },
+        {
+          name: "Unequal Tee",
+          sizes: '3/4" TO 6"',
+          grades: "SS304, SS316, SS316L",
+          finish: "MATT, MIRROR",
+          description: "Distributes or combines flow in sanitary piping systems with outlets of different sizes.",
+          image: productsImage2,
+        },
+        {
+          name: "TC End Unequal Tee",
+          sizes: '3/4" TO 4"',
+          grades: "SS304, SS316, SS316L",
+          finish: "MATT, MIRROR",
+          description: "Combines or redirects flow in sanitary systems with tri-clamp connections and different-sized ends.",
+          image: productsImage2,
+        },
+      ],
     },
     {
-      name: "Orbital Weld Ferrule",
-      sizes: '1/2" TO 20"',
-      grades: "SS304, SS316, SS316L",
-      finish: "MATT, MIRROR",
-      description: "Enables precise, weld-ready connections in sanitary piping systems for high-purity applications.",
+      id: "elbows-reducers",
+      name: "Elbows & Reducers",
+      description: "Directional change and pipe size transition fittings",
+      image: productsImage2,
+      products: [
+        {
+          name: "TC End 90° Elbow (1D, 1.5D)",
+          sizes: '1/2" TO 6"',
+          grades: "SS304, SS316, SS316L",
+          finish: "MATT, MIRROR",
+          description: "Allows for smooth directional changes in sanitary piping systems with tri-clamp connections at both ends.",
+          image: productsImage2,
+        },
+        {
+          name: "90° Elbow (1D, 1.5D)",
+          sizes: '1/2" TO 6"',
+          grades: "SS304, SS316",
+          finish: "MATT, MIRROR",
+          description: "Allows for directional changes in piping systems, welded for a permanent, secure connection.",
+          image: productsImage2,
+        },
+        {
+          name: "TC End Concentric Reducer",
+          sizes: '3/4" TO 4"',
+          grades: "SS304, SS316, SS316L",
+          finish: "MATT, MIRROR",
+          description: "Seamlessly transitions between different pipe sizes with tri-clamp connections for easy installation.",
+          image: productsImage2,
+        },
+        {
+          name: "Concentric Reducer",
+          sizes: '3/4" TO 4"',
+          grades: "SS304, SS316, SS316L",
+          finish: "MATT, MIRROR",
+          description: "Connects pipes of different diameters, welded for a secure, permanent connection.",
+          image: productsImage2,
+        },
+        {
+          name: "Eccentric Reducer",
+          sizes: '3/4" TO 4"',
+          grades: "SS304, SS316, SS316L",
+          finish: "MATT, MIRROR",
+          description: "Reduces pipe diameter while maintaining a flat underside, preventing air pockets.",
+          image: productsImage2,
+        },
+      ],
     },
     {
-      name: "Socket Weld Ferrule",
-      sizes: '1/2" TO 20"',
-      grades: "SS304, SS316, SS316L",
-      finish: "MATT, GLOSSY",
-      description: "Allows secure, weldable connections in sanitary piping systems for high-strength applications.",
+      id: "valves-manifolds",
+      name: "Valves & Manifolds",
+      description: "Flow control and distribution systems for hygienic applications",
+      image: productsImage2,
+      products: [
+        {
+          name: "TC End Manifolds",
+          sizes: '1/2" TO 4"',
+          grades: "SS304, SS316, SS316L",
+          finish: "MATT, MIRROR",
+          description: "Allows multiple pipe connections from a single point with tri-clamp connections for easy assembly.",
+          image: productsImage2,
+        },
+        {
+          name: "Diaphragm Valve",
+          sizes: '1/2" TO 2"',
+          grades: "SS316, SS316L",
+          finish: "MATT, MIRROR",
+          description: "Uses a flexible diaphragm to control fluid flow, offering tight shutoff and precise flow regulation.",
+          image: productsImage2,
+        },
+        {
+          name: "Zero Dead Leg Valve",
+          sizes: '1/2" TO 2"',
+          grades: "SS316, SS316L",
+          finish: "MATT, MIRROR",
+          description: "Designed to minimize stagnant areas in the flow path, preventing contamination.",
+          image: productsImage2,
+        },
+      ],
     },
     {
-      name: "Blind Ferrule",
-      sizes: '1/2" TO 20"',
-      grades: "SS304, SS316, SS316L",
-      finish: "MATT, MIRROR",
-      description: "Used to securely cap off unused sanitary piping ports in hygienic systems.",
-    },
-    {
-      name: "Pipe Clamp (PHC)",
-      sizes: '1/2" TO 12"',
-      grades: "SS304, SS316",
-      finish: "POLISHED",
-      description: "Securely supports and stabilizes pipes in sanitary and industrial piping systems.",
-    },
-    {
-      name: "Equal Tee",
-      sizes: '1/2" TO 6"',
-      grades: "SS304, SS316, SS316L",
-      finish: "MATT, MIRROR",
-      description: "Evenly splits or combines flow in sanitary piping systems with three equally sized outlets.",
-    },
-    {
-      name: "TC End Equal Tee",
-      sizes: '1/2" TO 4"',
-      grades: "SS304, SS316, SS316L",
-      finish: "MATT, MIRROR",
-      description: "Evenly splits or combines flow in sanitary systems, featuring tri-clamp connections on all three equal-sized ends.",
-    },
-    {
-      name: "Unequal Tee",
-      sizes: '3/4" TO 6"',
-      grades: "SS304, SS316, SS316L",
-      finish: "MATT, MIRROR",
-      description: "Distributes or combines flow in sanitary piping systems with outlets of different sizes.",
-    },
-    {
-      name: "TC End 90° Elbow (1D, 1.5D)",
-      sizes: '1/2" TO 6"',
-      grades: "SS304, SS316, SS316L",
-      finish: "MATT, MIRROR",
-      description: "Allows for smooth directional changes in sanitary piping systems, featuring tri-clamp connections at both ends.",
-    },
-    {
-      name: "TC End Concentric Reducer",
-      sizes: '3/4" TO 4"',
-      grades: "SS304, SS316, SS316L",
-      finish: "MATT, MIRROR",
-      description: "Seamlessly transitions between different pipe sizes in sanitary systems with tri-clamp connections.",
-    },
-    {
-      name: "Eccentric Reducer",
-      sizes: '3/4" TO 4"',
-      grades: "SS304, SS316, SS316L",
-      finish: "MATT, MIRROR",
-      description: "Reduces pipe diameter while maintaining a flat underside, preventing air pockets and ensuring smooth flow.",
-    },
-    {
-      name: "TC End Manifolds",
-      sizes: '1/2" TO 4"',
-      grades: "SS304, SS316, SS316L",
-      finish: "MATT, MIRROR",
-      description: "Allows multiple pipe connections from a single point, using tri-clamp connections for easy assembly.",
-    },
-    {
-      name: "Diaphragm Valve",
-      sizes: '1/2" TO 2"',
-      grades: "SS316, SS316L",
-      finish: "MATT, MIRROR",
-      description: "Uses a flexible diaphragm to control fluid flow, offering tight shutoff and precise flow regulation.",
-    },
-    {
-      name: "Zero Dead Leg Valve",
-      sizes: '1/2" TO 2"',
-      grades: "SS316, SS316L",
-      finish: "MATT, MIRROR",
-      description: "Designed to minimize stagnant areas in the flow path, preventing contamination and ensuring hygienic conditions.",
-    },
-    {
-      name: "Tri Clamp Gaskets",
-      sizes: '1/2" TO 12"',
-      grades: "SILICON, EPDM, PTFE",
-      finish: "WHITE, RED, TRANSPARENT",
-      description: "Sealing component used with Tri Clamp fittings to create a leak-proof, sanitary connection.",
-    },
-    {
-      name: "Flanges",
-      sizes: '1/2" TO 12"',
-      grades: "SS304, SS316, SS316L",
-      finish: "E-TABLE, SLIP-ON, LAP-JOINT, BLIND, WELD NECK",
-      description: "Flat, circular connectors used to join pipe sections or equipment, providing secure, leak-proof seals.",
+      id: "gaskets-flanges",
+      name: "Gaskets & Flanges",
+      description: "Sealing components and connection hardware for leak-proof systems",
+      image: productsImage1,
+      products: [
+        {
+          name: "Tri Clamp Gaskets",
+          sizes: '1/2" TO 12"',
+          grades: "SILICON, EPDM, PTFE",
+          finish: "WHITE, RED, TRANSPARENT",
+          description: "Sealing component used with Tri Clamp fittings to create a leak-proof, sanitary connection.",
+          image: productsImage1,
+        },
+        {
+          name: "Flanges",
+          sizes: '1/2" TO 12"',
+          grades: "SS304, SS316, SS316L",
+          finish: "E-TABLE, SLIP-ON, LAP-JOINT, BLIND, WELD NECK",
+          description: "Flat, circular connectors used to join pipe sections or equipment, providing secure, leak-proof seals.",
+          image: productsImage1,
+        },
+      ],
     },
   ];
+
+  const handleCategoryClick = (categoryId: string) => {
+    setSelectedCategory(categoryId);
+    setIsModalOpen(true);
+  };
+
+  const selectedCategoryData = productCategories.find((cat) => cat.id === selectedCategory);
 
   return (
     <div className="min-h-screen pt-32 pb-20 px-4">
@@ -137,36 +234,88 @@ const Products = () => {
           </p>
         </div>
 
-        {/* Products Grid */}
+        {/* Categories Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((product, index) => (
+          {productCategories.map((category, index) => (
             <Card
-              key={index}
-              className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 animate-scale-in"
+              key={category.id}
+              className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1 animate-scale-in overflow-hidden group"
               style={{ animationDelay: `${index * 0.05}s` }}
+              onClick={() => handleCategoryClick(category.id)}
             >
+              <div className="relative h-48 overflow-hidden">
+                <img
+                  src={category.image}
+                  alt={category.name}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+              </div>
               <CardHeader>
-                <CardTitle className="text-xl text-foreground">{product.name}</CardTitle>
-                <CardDescription className="text-sm">{product.description}</CardDescription>
+                <CardTitle className="flex items-center justify-between text-xl text-foreground">
+                  {category.name}
+                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </CardTitle>
+                <CardDescription className="text-sm">{category.description}</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex flex-wrap gap-2">
-                  <Badge variant="outline" className="text-xs">
-                    Size: {product.sizes}
-                  </Badge>
-                </div>
-                <div>
-                  <span className="text-sm font-semibold text-foreground">Grade: </span>
-                  <span className="text-sm text-muted-foreground">{product.grades}</span>
-                </div>
-                <div>
-                  <span className="text-sm font-semibold text-foreground">Finish: </span>
-                  <span className="text-sm text-muted-foreground">{product.finish}</span>
-                </div>
+              <CardContent>
+                <Badge variant="secondary" className="text-xs">
+                  {category.products.length} Products
+                </Badge>
               </CardContent>
             </Card>
           ))}
         </div>
+
+        {/* Product Modal */}
+        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl">{selectedCategoryData?.name}</DialogTitle>
+              <DialogDescription>{selectedCategoryData?.description}</DialogDescription>
+            </DialogHeader>
+            
+            {selectedCategoryData && (
+              <Carousel className="w-full mt-6">
+                <CarouselContent>
+                  {selectedCategoryData.products.map((product, index) => (
+                    <CarouselItem key={index}>
+                      <div className="space-y-6">
+                        <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                        <div className="space-y-4">
+                          <h3 className="text-xl font-semibold text-foreground">{product.name}</h3>
+                          <p className="text-muted-foreground">{product.description}</p>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+                            <div className="space-y-1">
+                              <span className="text-sm font-semibold text-foreground">Size Range</span>
+                              <p className="text-sm text-muted-foreground">{product.sizes}</p>
+                            </div>
+                            <div className="space-y-1">
+                              <span className="text-sm font-semibold text-foreground">Grade</span>
+                              <p className="text-sm text-muted-foreground">{product.grades}</p>
+                            </div>
+                            <div className="space-y-1">
+                              <span className="text-sm font-semibold text-foreground">Finish</span>
+                              <p className="text-sm text-muted-foreground">{product.finish}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="left-2" />
+                <CarouselNext className="right-2" />
+              </Carousel>
+            )}
+          </DialogContent>
+        </Dialog>
 
         {/* CTA */}
         <div className="mt-20 text-center animate-fade-in">
