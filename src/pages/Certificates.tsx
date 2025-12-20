@@ -29,6 +29,10 @@ const Certificates = () => {
   const [errorStates, setErrorStates] = useState<{ [key: number]: boolean }>(
     {},
   );
+  const [iframeSources, setIframeSources] = useState<{ [key: number]: string }>(
+    {},
+  );
+  const [modalIframeSrc, setModalIframeSrc] = useState<string>('');
 
   const certificates = [
     {
@@ -92,13 +96,26 @@ const Certificates = () => {
     };
   }, [selectedCertificate]);
 
-  // Initialize loading states
+  // Initialize loading states and setup iframe sources for mobile compatibility
   useEffect(() => {
     const initialLoadingStates: { [key: number]: boolean } = {};
     certificates.forEach((_, index) => {
       initialLoadingStates[index] = true;
     });
     setLoadingStates(initialLoadingStates);
+
+    // Delay setting iframe sources to prevent mobile Chrome issues
+    const timer = setTimeout(() => {
+      const sources: { [key: number]: string } = {};
+      certificates.forEach((cert, index) => {
+        sources[
+          index
+        ] = `${cert.file}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=50`;
+      });
+      setIframeSources(sources);
+    }, 100); // Small delay to ensure proper loading
+
+    return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Run only once on mount
 
@@ -117,10 +134,17 @@ const Certificates = () => {
     description: string;
   }) => {
     setSelectedCertificate(cert);
+    // Set iframe source after a small delay to prevent mobile Chrome issues
+    setTimeout(() => {
+      setModalIframeSrc(
+        `${cert.file}#toolbar=1&navpanes=0&scrollbar=1&view=FitH`,
+      );
+    }, 100);
   };
 
   const closePreview = () => {
     setSelectedCertificate(null);
+    setModalIframeSrc(''); // Clear iframe source when closing
   };
 
   const handleIframeLoad = (index: number) => {
@@ -217,18 +241,14 @@ const Certificates = () => {
                       </div>
                     )}
 
-                    {/* PDF Embed - Fixed for mobile */}
+                    {/* PDF Embed - Fixed for mobile Chrome compatibility */}
                     <iframe
-                      src={`${cert.file}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=50`}
+                      src={iframeSources[index] || ''}
                       className="w-full h-full border-0 pointer-events-none bg-white"
                       title={`${cert.title} Preview`}
                       onLoad={() => handleIframeLoad(index)}
                       onError={() => handleIframeError(index)}
                       style={{
-                        // transform: 'scale(0.7)',
-                        // transformOrigin: 'top left',
-                        // width: '142%',
-                        // height: '142%',
                         width: '100%',
                         height: '100%',
                         border: 'none',
@@ -405,9 +425,9 @@ const Certificates = () => {
 
               {/* Modal Content */}
               <div className="relative h-[calc(100vh-80px)] md:h-[calc(90vh-120px)] bg-white">
-                {/* Enhanced PDF Viewer */}
+                {/* Enhanced PDF Viewer - Mobile Chrome compatible */}
                 <iframe
-                  src={`${selectedCertificate.file}#toolbar=1&navpanes=0&scrollbar=1&view=FitH`}
+                  src={modalIframeSrc}
                   className="w-full h-full border-0"
                   title={selectedCertificate.title}
                 />
