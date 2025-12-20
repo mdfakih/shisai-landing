@@ -133,13 +133,20 @@ const Certificates = () => {
     file: string;
     description: string;
   }) => {
-    setSelectedCertificate(cert);
-    // Set iframe source after a small delay to prevent mobile Chrome issues
-    setTimeout(() => {
-      setModalIframeSrc(
-        `${cert.file}#toolbar=1&navpanes=0&scrollbar=1&view=FitH`,
-      );
-    }, 100);
+    // Check if it's mobile/tablet (screen width < 1024px)
+    if (window.innerWidth < 1024) {
+      // Open in new tab for mobile/tablet
+      openInNewTab(cert.file);
+    } else {
+      // Show modal for desktop
+      setSelectedCertificate(cert);
+      // Set iframe source after a small delay to prevent mobile Chrome issues
+      setTimeout(() => {
+        setModalIframeSrc(
+          `${cert.file}#toolbar=1&navpanes=0&scrollbar=1&view=FitH`,
+        );
+      }, 100);
+    }
   };
 
   const closePreview = () => {
@@ -215,14 +222,14 @@ const Certificates = () => {
                   {cert.description}
                 </CardDescription>
 
-                {/* PDF Preview */}
-                <div className="relative group/preview">
-                  <div className="relative h-48 md:h-64 bg-white rounded-lg border-2 border-border hover:border-primary/50 transition-all duration-300 overflow-hidden shadow-inner">
+                {/* PDF Preview - Hidden on mobile/tablet, shown on desktop */}
+                <div className="relative group/preview hidden lg:block">
+                  <div className="relative h-64 bg-white rounded-lg border-2 border-border hover:border-primary/50 transition-all duration-300 overflow-hidden shadow-inner">
                     {/* Loading State */}
                     {loadingStates[index] !== false && (
                       <div className="absolute inset-0 flex flex-col items-center justify-center bg-muted/50 backdrop-blur-sm z-10">
-                        <div className="animate-spin rounded-full h-7 w-7 md:h-8 md:w-8 border-b-2 border-primary mb-2 md:mb-3"></div>
-                        <span className="text-xs md:text-sm font-medium text-muted-foreground">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-3"></div>
+                        <span className="text-sm font-medium text-muted-foreground">
                           Loading preview...
                         </span>
                       </div>
@@ -231,8 +238,8 @@ const Certificates = () => {
                     {/* Error State */}
                     {errorStates[index] && (
                       <div className="absolute inset-0 flex flex-col items-center justify-center bg-muted/80 backdrop-blur-sm z-10">
-                        <FileText className="h-10 w-10 md:h-12 md:w-12 text-muted-foreground mb-2 md:mb-3" />
-                        <span className="text-xs md:text-sm font-medium text-muted-foreground mb-1 md:mb-2">
+                        <FileText className="h-12 w-12 text-muted-foreground mb-3" />
+                        <span className="text-sm font-medium text-muted-foreground mb-2">
                           Preview unavailable
                         </span>
                         <span className="text-xs text-muted-foreground">
@@ -241,7 +248,7 @@ const Certificates = () => {
                       </div>
                     )}
 
-                    {/* PDF Embed - Fixed for mobile Chrome compatibility */}
+                    {/* PDF Embed - Desktop only */}
                     <iframe
                       src={iframeSources[index] || ''}
                       className="w-full h-full border-0 pointer-events-none bg-white"
@@ -257,16 +264,16 @@ const Certificates = () => {
 
                     {/* Interactive Overlay */}
                     <div
-                      className="absolute inset-0 bg-transparent active:bg-primary/10 md:hover:bg-primary/5 transition-all duration-300 cursor-pointer flex items-center justify-center opacity-0 active:opacity-100 md:hover:opacity-100"
+                      className="absolute inset-0 bg-transparent hover:bg-primary/5 transition-all duration-300 cursor-pointer flex items-center justify-center opacity-0 hover:opacity-100"
                       onClick={() => handlePreview(cert)}
                     >
-                      <div className="bg-primary text-primary-foreground p-2.5 md:p-3 rounded-full shadow-lg transform scale-75 hover:scale-100 transition-transform duration-300">
-                        <Maximize2 className="h-4 w-4 md:h-5 md:w-5" />
+                      <div className="bg-primary text-primary-foreground p-3 rounded-full shadow-lg transform scale-75 hover:scale-100 transition-transform duration-300">
+                        <Maximize2 className="h-5 w-5" />
                       </div>
                     </div>
 
-                    {/* Corner Actions - Hidden on mobile, shown on hover on desktop */}
-                    <div className="hidden md:flex absolute top-2 right-2 gap-2 opacity-0 group-hover/preview:opacity-100 transition-opacity duration-300">
+                    {/* Corner Actions - Desktop only */}
+                    <div className="flex absolute top-2 right-2 gap-2 opacity-0 group-hover/preview:opacity-100 transition-opacity duration-300">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
