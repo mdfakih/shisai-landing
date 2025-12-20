@@ -18,7 +18,6 @@ import {
 import { useState, useEffect } from 'react';
 
 const Certificates = () => {
-  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
   const [selectedCertificate, setSelectedCertificate] = useState<{
     title: string;
     file: string;
@@ -36,7 +35,7 @@ const Certificates = () => {
       title: 'Udyam Registration Certificate',
       description:
         'Official MSME registration certificate validating our business credentials and compliance with government standards.',
-      file: '/src/assets/certificates/AAA Print _ Udyam Registration Certificate (1) (2).pdf',
+      file: '/certificates/AAA Print _ Udyam Registration Certificate (1) (2).pdf',
       icon: Award,
       color: 'from-blue-500 to-cyan-500',
     },
@@ -44,7 +43,7 @@ const Certificates = () => {
       title: 'Company Registration Certificate',
       description:
         'Official company registration documentation for Shisai Steel Industries, establishing our legal entity and operational authority.',
-      file: '/src/assets/certificates/SHISAI STEEL INDUSTRIES (5) (2).pdf',
+      file: '/certificates/SHISAI STEEL INDUSTRIES (5) (2).pdf',
       icon: Shield,
       color: 'from-purple-500 to-pink-500',
     },
@@ -52,7 +51,7 @@ const Certificates = () => {
       title: 'ZED Certification',
       description:
         'Zero Defect Zero Effect certification demonstrating our commitment to quality manufacturing and environmental responsibility.',
-      file: '/src/assets/certificates/Zed certificate (3) (2).pdf',
+      file: '/certificates/Zed certificate (3) (2).pdf',
       icon: Award,
       color: 'from-green-500 to-emerald-500',
     },
@@ -60,7 +59,7 @@ const Certificates = () => {
       title: 'Trade License',
       description:
         'Authorized trade license from Znox Trademart validating our commercial operations and business legitimacy.',
-      file: '/src/assets/certificates/znox trademart (2).pdf',
+      file: '/certificates/znox trademart (2).pdf',
       icon: FileText,
       color: 'from-orange-500 to-red-500',
     },
@@ -68,7 +67,7 @@ const Certificates = () => {
       title: 'Tri Clover Trademark Certificate',
       description:
         'Official trademark registration certificate for Tri Clover brand, protecting our intellectual property and brand identity.',
-      file: '/src/assets/certificates/tri clover trademark certificate (3).pdf',
+      file: '/certificates/tri clover trademark certificate (3).pdf',
       icon: Award,
       color: 'from-indigo-500 to-purple-500',
     },
@@ -161,8 +160,6 @@ const Certificates = () => {
               key={index}
               className="group relative overflow-hidden hover:shadow-2xl transition-all duration-500 md:hover:-translate-y-2 animate-scale-in border-2 hover:border-primary/50"
               style={{ animationDelay: `${index * 0.15}s` }}
-              onMouseEnter={() => setHoveredCard(index)}
-              onMouseLeave={() => setHoveredCard(null)}
             >
               {/* Gradient Background Effect */}
               <div
@@ -407,7 +404,7 @@ const Certificates = () => {
               <div className="relative h-[calc(95vh-80px)] md:h-[calc(90vh-120px)] bg-white">
                 {/* Enhanced PDF Viewer */}
                 <iframe
-                  src={`${selectedCertificate.file}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`}
+                  src={`${selectedCertificate.file}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`}
                   className="w-full h-full border-0"
                   title={selectedCertificate.title}
                 />
