@@ -225,10 +225,13 @@ const Certificates = () => {
                       onLoad={() => handleIframeLoad(index)}
                       onError={() => handleIframeError(index)}
                       style={{
-                        transform: 'scale(0.7)',
-                        transformOrigin: 'top left',
-                        width: '142%',
-                        height: '142%',
+                        // transform: 'scale(0.7)',
+                        // transformOrigin: 'top left',
+                        // width: '142%',
+                        // height: '142%',
+                        width: '100%',
+                        height: '100%',
+                        border: 'none',
                       }}
                     />
 
