@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/carousel';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Link } from 'react-router-dom';
+import ImageCarousel from '@/components/ImageCarousel';
 
 // Import product images
 import bend5inch1 from '@/assets/products/sanitary-elbow-90-degree-500x500.jpg';
@@ -84,236 +85,374 @@ const Products = () => {
 
   const productCategories = [
     {
-      id: 'bends',
-      name: 'Stainless Steel Bends',
+      id: 'elbows-bends',
+      name: 'Elbows & Bends',
       description:
-        'High-quality stainless steel bends for directional changes in piping systems',
+        'High-quality stainless steel elbows and bends for directional changes in piping systems',
       products: [
         {
-          name: '5 Inch Stainless Steel Bend',
-          sizes: '5"',
-          grades: 'SS304, SS316',
-          finish: 'MATT, MIRROR',
-          price: '₹ 250 / Piece',
-          description:
-            'Premium quality 5 inch stainless steel bend for smooth directional changes in sanitary piping systems.',
-          images: [bend5inch1, bend5inch2, bend5inch3],
-        },
-        {
-          name: '4 Inch Stainless Steel Bend',
-          sizes: '4"',
-          grades: 'SS304, SS316, SS316L',
-          finish: 'MATT, MIRROR',
-          price: '₹ 200 / Piece',
-          description:
-            '4 inch stainless steel bend designed for high-pressure sanitary piping applications.',
-          images: [bend4inch1, bend4inch2, bend4inch3],
-        },
-        {
-          name: '3 Inch Stainless Steel Bend',
-          sizes: '3"',
-          grades: 'SS304, SS316, SS316L',
-          finish: 'MATT, MIRROR',
-          price: '₹ 290 / Piece',
-          description:
-            'Precision-engineered 3 inch stainless steel bend for pharmaceutical and food processing industries.',
-          images: [bend3inch1, bend3inch2, bend3inch3],
-        },
-        {
-          name: 'Stainless Steel TC Bend',
+          name: '90° EP Bends',
           sizes: '1/2" TO 6"',
           grades: 'SS304, SS316, SS316L',
           finish: 'MATT, MIRROR',
-          price: 'Get Best Quote',
           description:
-            'TC end dairy bend with tri-clamp connections for easy installation and maintenance.',
+            '90-degree EP bends for smooth directional changes in sanitary piping systems.',
+          images: [bend5inch1, bend5inch2, bend5inch3],
+        },
+        {
+          name: '45° EP Bends',
+          sizes: '1/2" TO 6"',
+          grades: 'SS304, SS316, SS316L',
+          finish: 'MATT, MIRROR',
+          description:
+            '45-degree EP bends designed for gradual directional changes in piping applications.',
+          images: [bend4inch1, bend4inch2, bend4inch3],
+        },
+        {
+          name: '180° EP Bends',
+          sizes: '1/2" TO 6"',
+          grades: 'SS304, SS316, SS316L',
+          finish: 'MATT, MIRROR',
+          description:
+            '180-degree EP bends for complete flow reversal in sanitary piping systems.',
+          images: [bend3inch1, bend3inch2, bend3inch3],
+        },
+        {
+          name: '90° Tri Clamp (TC) Bends',
+          sizes: '1/2" TO 6"',
+          grades: 'SS304, SS316, SS316L',
+          finish: 'MATT, MIRROR',
+          description:
+            '90-degree TC bends with tri-clamp connections for easy installation and maintenance.',
           images: [tcBend1, tcBend2, tcBend3],
         },
         {
-          name: '1.5 Inch Stainless Steel Bend',
-          sizes: '1.5"',
-          grades: 'SS304, SS316',
+          name: '45° Tri Clamp (TC) Bends',
+          sizes: '1/2" TO 6"',
+          grades: 'SS304, SS316, SS316L',
           finish: 'MATT, MIRROR',
-          price: 'Get Best Quote',
           description:
-            'Compact 1.5 inch stainless steel bend ideal for smaller diameter piping systems.',
+            '45-degree TC bends with tri-clamp connections for gradual directional changes.',
+          images: [elbow4inch1, elbow4inch2],
+        },
+        {
+          name: '180° Tri Clamp (TC) Bends',
+          sizes: '1/2" TO 6"',
+          grades: 'SS304, SS316, SS316L',
+          finish: 'MATT, MIRROR',
+          description:
+            '180-degree TC bends with tri-clamp connections for complete flow reversal.',
           images: [bend15inch1, bend15inch2],
         },
       ],
     },
     {
       id: 'ferrules',
-      name: 'Stainless Steel Ferrules',
+      name: 'Ferrules',
       description:
         'Precision-engineered ferrules for secure, sanitary pipe connections',
       products: [
         {
-          name: '5 Inch Stainless Steel Ferrule',
-          sizes: '5"',
-          grades: 'SS304, SS316',
+          name: 'Butt-Weld Ferrules',
+          sizes: '1/2" TO 20"',
+          grades: 'SS304, SS316, SS316L',
           finish: 'MATT, MIRROR',
-          price: 'Get Best Quote',
           description:
-            'High-quality 5 inch stainless steel ferrule for leak-proof sanitary connections.',
+            'Butt-weld ferrules for permanent, high-strength connections in sanitary piping systems.',
           images: [ferrule5inch1],
         },
         {
-          name: 'SS Socket Weld TC Ferrule',
+          name: 'Socket Weld Ferrules',
           sizes: '1/2" TO 20"',
           grades: 'SS304, SS316, SS316L',
           finish: 'MATT, GLOSSY',
-          price: 'Get Best Quote',
           description:
-            'Socket weld ferrule allowing secure, weldable connections in sanitary piping systems.',
+            'Socket weld ferrules allowing secure, weldable connections in sanitary piping systems.',
           images: [ferruleSocket1, ferruleSocket2],
         },
         {
-          name: 'Stainless Steel Orbital TC Ferrule',
+          name: 'Threaded Ferrules',
           sizes: '1/2" TO 20"',
           grades: 'SS304, SS316, SS316L',
           finish: 'MATT, MIRROR',
-          price: 'Get Best Quote',
           description:
-            'Orbital weld ferrule enabling precise, weld-ready connections for high-purity applications.',
+            'Threaded ferrules for easy assembly and disassembly in sanitary applications.',
           images: [ferruleOrbital1, ferruleOrbital2],
         },
-      ],
-    },
-    {
-      id: 'elbows',
-      name: 'Stainless Steel Elbows',
-      description: '90-degree elbows for directional changes in piping systems',
-      products: [
         {
-          name: '4 Inch 90 Degree Stainless Steel Elbow',
-          sizes: '4"',
+          name: 'Long Ferrules',
+          sizes: '1/2" TO 20"',
           grades: 'SS304, SS316, SS316L',
           finish: 'MATT, MIRROR',
-          price: 'Get Best Quote',
           description:
-            '4 inch 90-degree elbow for smooth directional changes with tri-clamp connections.',
-          images: [elbow4inch1, elbow4inch2],
+            'Extended length ferrules for specialized piping configurations.',
+          images: [ferruleOrbital1],
         },
         {
-          name: '3 Inch 90 Degree Stainless Steel Elbow',
-          sizes: '3"',
-          grades: 'SS304, SS316',
+          name: 'Customize Ferrules',
+          sizes: 'Custom',
+          grades: 'SS304, SS316, SS316L',
           finish: 'MATT, MIRROR',
-          price: 'Get Best Quote',
           description:
-            '3 inch 90-degree elbow designed for permanent, secure connections in piping systems.',
-          images: [elbow3inch1, elbow3inch2],
-        },
-      ],
-    },
-    {
-      id: 'clamps',
-      name: 'Tri Clover Clamps',
-      description:
-        'Essential tri-clamp connectors for secure, sanitary pipe connections',
-      products: [
-        {
-          name: '4 Inch Stainless Steel Tri Clover Clamp',
-          sizes: '4"',
-          grades: 'SS304, SS316',
-          finish: 'MATT, GLOSSY',
-          price: 'Get Best Quote',
-          description:
-            '4 inch tri-clover clamp ensuring secure, leak-proof seals in sanitary piping systems.',
-          images: [clamp4inch1, clamp4inch2],
+            'Custom-designed ferrules tailored to specific application requirements.',
+          images: [ferruleSocket1],
         },
         {
-          name: '3 Inch Stainless Steel Tri Clover Clamp',
-          sizes: '3"',
-          grades: 'SS304, SS316',
-          finish: 'MATT, GLOSSY',
-          price: 'Get Best Quote',
+          name: 'Tri Clamp (TC) Spools',
+          sizes: '1/2" TO 20"',
+          grades: 'SS304, SS316, SS316L',
+          finish: 'MATT, MIRROR',
           description:
-            '3 inch tri-clover clamp providing reliable connections for pharmaceutical applications.',
-          images: [clamp3inch1, clamp3inch2],
-        },
-      ],
-    },
-    {
-      id: 'pipe-clamps',
-      name: 'Pipe Holding Clamps',
-      description: 'Support clamps for stabilizing pipes in sanitary systems',
-      products: [
-        {
-          name: '3 Inch Stainless Steel Pipe Holding Clamp',
-          sizes: '3"',
-          grades: 'SS304, SS316',
-          finish: 'POLISHED',
-          price: 'Get Best Quote',
-          description:
-            '3 inch pipe holding clamp securely supporting and stabilizing pipes in sanitary systems.',
-          images: [pipeClamp3inch1, pipeClamp3inch2],
-        },
-        {
-          name: '4 Inch Stainless Steel Pipe Holding Clamp',
-          sizes: '4"',
-          grades: 'SS304, SS316',
-          finish: 'POLISHED',
-          price: 'Get Best Quote',
-          description:
-            '4 inch pipe holding clamp with base plate for industrial piping systems.',
-          images: [pipeClamp4inch1, pipeClamp4inch2],
+            'TC spools for extending pipe lengths with easy tri-clamp connections.',
+          images: [spool5inch1, spool5inch2],
         },
       ],
     },
     {
       id: 'tees',
-      name: 'Stainless Steel Tees',
+      name: 'Tees',
       description:
         'Flow distribution fittings for splitting or combining flow directions',
       products: [
         {
-          name: '2 Inch Stainless Steel Dairy Tee',
-          sizes: '2"',
+          name: 'Equal EP Tee',
+          sizes: '1/2" TO 6"',
           grades: 'SS304, SS316, SS316L',
           finish: 'MATT, MIRROR',
-          price: 'Get Best Quote',
           description:
-            '2 inch dairy tee evenly splitting or combining flow in sanitary piping systems.',
+            'Equal EP tee for evenly splitting or combining flow in sanitary piping systems.',
           images: [tee2inch1, tee2inch2],
         },
         {
-          name: 'Stainless Steel TC Tee',
-          sizes: '1/2" TO 4"',
+          name: 'Unequal EP Tee',
+          sizes: '1/2" TO 6"',
           grades: 'SS304, SS316, SS316L',
           finish: 'MATT, MIRROR',
-          price: 'Get Best Quote',
           description:
-            'TC end tee with tri-clamp connections for easy assembly and maintenance.',
+            'Unequal EP tee for connecting pipes of different sizes in branching applications.',
           images: [tcTee1, tcTee2],
         },
         {
-          name: '4 Inch Stainless Steel Tri Clover Tee',
-          sizes: '4"',
+          name: 'Equal Tri Clamp (TC) Tee',
+          sizes: '1/2" TO 6"',
           grades: 'SS304, SS316, SS316L',
           finish: 'MATT, MIRROR',
-          price: 'Get Best Quote',
           description:
-            '4 inch tri-clover tee featuring tri-clamp connections on all three equal-sized ends.',
+            'Equal TC tee with tri-clamp connections for easy assembly and maintenance.',
           images: [tee4inch1, tee4inch2],
+        },
+        {
+          name: 'Unequal Tri Clamp (TC) Tee',
+          sizes: '1/2" TO 6"',
+          grades: 'SS304, SS316, SS316L',
+          finish: 'MATT, MIRROR',
+          description:
+            'Unequal TC tee with tri-clamp connections for different sized pipe connections.',
+          images: [tee2inch1],
+        },
+        {
+          name: 'EP Manifolds',
+          sizes: '1/2" TO 6"',
+          grades: 'SS304, SS316, SS316L',
+          finish: 'MATT, MIRROR',
+          description:
+            'EP manifolds for multiple port distribution in complex piping systems.',
+          images: [tcTee2],
+        },
+        {
+          name: 'Tri Clamp (TC) Manifolds',
+          sizes: '1/2" TO 6"',
+          grades: 'SS304, SS316, SS316L',
+          finish: 'MATT, MIRROR',
+          description:
+            'TC manifolds with tri-clamp connections for multi-port applications.',
+          images: [tee4inch2],
         },
       ],
     },
     {
-      id: 'spools',
-      name: 'Stainless Steel Spools',
+      id: 'reducers',
+      name: 'Reducers',
       description:
-        'Precision spools for extending pipe lengths in sanitary systems',
+        'Transition fittings for connecting pipes of different sizes',
       products: [
         {
-          name: '5 Inch Stainless Steel Spools',
-          sizes: '5"',
+          name: 'EP Concentric Reducer',
+          sizes: '1/2" TO 6"',
           grades: 'SS304, SS316, SS316L',
           finish: 'MATT, MIRROR',
-          price: 'Get Best Quote',
           description:
-            '5 inch tri-clover spools for extending pipe lengths with easy tri-clamp connections.',
-          images: [spool5inch1, spool5inch2],
+            'Concentric EP reducer for smooth size transitions with centered flow path.',
+          images: [bend4inch1],
+        },
+        {
+          name: 'EP Eccentric Reducer',
+          sizes: '1/2" TO 6"',
+          grades: 'SS304, SS316, SS316L',
+          finish: 'MATT, MIRROR',
+          description:
+            'Eccentric EP reducer for size transitions with offset flow path to prevent air pockets.',
+          images: [bend3inch2],
+        },
+        {
+          name: 'EP Concentric Reducer - Glass Shape',
+          sizes: '1/2" TO 6"',
+          grades: 'SS304, SS316, SS316L',
+          finish: 'MATT, MIRROR',
+          description:
+            'Glass-shaped concentric EP reducer for specialized applications requiring smooth transitions.',
+          images: [bend5inch2],
+        },
+        {
+          name: 'EP Eccentric Reducer - Glass Shape',
+          sizes: '1/2" TO 6"',
+          grades: 'SS304, SS316, SS316L',
+          finish: 'MATT, MIRROR',
+          description:
+            'Glass-shaped eccentric EP reducer for applications requiring offset flow paths.',
+          images: [bend4inch3],
+        },
+        {
+          name: 'Tri Clamp (TC) Concentric Reducer',
+          sizes: '1/2" TO 6"',
+          grades: 'SS304, SS316, SS316L',
+          finish: 'MATT, MIRROR',
+          description:
+            'Concentric TC reducer with tri-clamp connections for easy installation.',
+          images: [tcBend2],
+        },
+        {
+          name: 'Tri Clamp (TC) Eccentric Reducer',
+          sizes: '1/2" TO 6"',
+          grades: 'SS304, SS316, SS316L',
+          finish: 'MATT, MIRROR',
+          description:
+            'Eccentric TC reducer with tri-clamp connections for offset size transitions.',
+          images: [tcBend3],
+        },
+        {
+          name: 'Tri Clamp (TC) Concentric Reducer - Glass Shape',
+          sizes: '1/2" TO 6"',
+          grades: 'SS304, SS316, SS316L',
+          finish: 'MATT, MIRROR',
+          description:
+            'Glass-shaped concentric TC reducer for specialized tri-clamp applications.',
+          images: [elbow3inch1],
+        },
+        {
+          name: 'Tri Clamp (TC) Eccentric Reducer - Glass Shape',
+          sizes: '1/2" TO 6"',
+          grades: 'SS304, SS316, SS316L',
+          finish: 'MATT, MIRROR',
+          description:
+            'Glass-shaped eccentric TC reducer for specialized offset applications.',
+          images: [elbow3inch2],
+        },
+      ],
+    },
+    {
+      id: 'clamps',
+      name: 'Clamps',
+      description:
+        'Essential clamps and supports for secure, sanitary pipe connections',
+      products: [
+        {
+          name: 'TC Clamp',
+          sizes: '1/2" TO 6"',
+          grades: 'SS304, SS316',
+          finish: 'MATT, GLOSSY',
+          description:
+            'Tri-clamp clamps ensuring secure, leak-proof seals in sanitary piping systems.',
+          images: [clamp4inch1, clamp4inch2],
+        },
+        {
+          name: 'Pipe Clamp',
+          sizes: '1/2" TO 6"',
+          grades: 'SS304, SS316',
+          finish: 'POLISHED',
+          description:
+            'Pipe holding clamps for supporting and stabilizing pipes in sanitary systems.',
+          images: [pipeClamp3inch1, pipeClamp3inch2],
+        },
+        {
+          name: 'C-Clamp',
+          sizes: '1/2" TO 6"',
+          grades: 'SS304, SS316',
+          finish: 'POLISHED',
+          description:
+            'C-shaped clamps for versatile pipe support and mounting applications.',
+          images: [clamp3inch1, clamp3inch2],
+        },
+        {
+          name: 'U-Clamp',
+          sizes: '1/2" TO 6"',
+          grades: 'SS304, SS316',
+          finish: 'POLISHED',
+          description:
+            'U-shaped clamps for secure pipe mounting and support in various configurations.',
+          images: [pipeClamp4inch1],
+        },
+        {
+          name: 'Base Plate',
+          sizes: '1/2" TO 6"',
+          grades: 'SS304, SS316',
+          finish: 'POLISHED',
+          description:
+            'Base plates for floor mounting and support of piping systems.',
+          images: [pipeClamp4inch2],
+        },
+        {
+          name: 'Split Clamps',
+          sizes: '1/2" TO 6"',
+          grades: 'SS304, SS316',
+          finish: 'POLISHED',
+          description:
+            'Split clamps for easy installation around existing pipes without disconnection.',
+          images: [clamp4inch1],
+        },
+      ],
+    },
+    {
+      id: 'flanges',
+      name: 'Flanges',
+      description:
+        'High-strength flanged connections for permanent pipe joints',
+      products: [
+        {
+          name: 'Weld Neck Flanges',
+          sizes: '1/2" TO 12"',
+          grades: 'SS304, SS316, SS316L',
+          finish: 'MATT, MIRROR',
+          description:
+            'Weld neck flanges providing strong, permanent connections for high-pressure applications.',
+          images: [bend5inch3],
+        },
+        {
+          name: 'Slip-On Flanges',
+          sizes: '1/2" TO 12"',
+          grades: 'SS304, SS316, SS316L',
+          finish: 'MATT, MIRROR',
+          description:
+            'Slip-on flanges for easy installation and moderate pressure applications.',
+          images: [bend4inch2],
+        },
+        {
+          name: 'Blind Flanges',
+          sizes: '1/2" TO 12"',
+          grades: 'SS304, SS316, SS316L',
+          finish: 'MATT, MIRROR',
+          description:
+            'Blind flanges for closing pipe ends and providing access points for maintenance.',
+          images: [bend3inch3],
+        },
+        {
+          name: 'Threaded Flanges',
+          sizes: '1/2" TO 12"',
+          grades: 'SS304, SS316, SS316L',
+          finish: 'MATT, MIRROR',
+          description:
+            'Threaded flanges for applications where welding is not preferred or possible.',
+          images: [tcBend1],
         },
       ],
     },
@@ -379,10 +518,10 @@ const Products = () => {
                     onClick={() => handleProductClick(category.id, index)}
                   >
                     <div className="relative h-48 overflow-hidden bg-muted">
-                      <img
-                        src={product.images[0]}
-                        alt={product.name}
-                        className="w-full h-full object-contain p-4 transition-transform duration-300 group-hover:scale-110"
+                      <ImageCarousel
+                        images={product.images}
+                        productName={product.name}
+                        className="h-full"
                       />
                     </div>
                     <CardHeader className="pb-3">
@@ -405,9 +544,6 @@ const Products = () => {
                             {product.grades}
                           </span>
                         </div>
-                      </div>
-                      <div className="text-sm font-bold text-primary">
-                        {product.price}
                       </div>
                     </CardContent>
                   </Card>
@@ -450,29 +586,10 @@ const Products = () => {
                         <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 pb-4">
                           {/* Product Images Carousel */}
                           <div className="w-full lg:w-1/2 flex-shrink-0">
-                            <Carousel className="w-full">
-                              <CarouselContent>
-                                {product.images.map((image, imgIndex) => (
-                                  <CarouselItem key={imgIndex}>
-                                    <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
-                                      <img
-                                        src={image}
-                                        alt={`${product.name} - Image ${
-                                          imgIndex + 1
-                                        }`}
-                                        className="w-full h-full object-contain p-4 sm:p-6"
-                                      />
-                                    </div>
-                                  </CarouselItem>
-                                ))}
-                              </CarouselContent>
-                              {product.images.length > 1 && (
-                                <>
-                                  <CarouselPrevious className="left-2" />
-                                  <CarouselNext className="right-2" />
-                                </>
-                              )}
-                            </Carousel>
+                            <ImageCarousel
+                              images={product.images}
+                              productName={product.name}
+                            />
                           </div>
 
                           {/* Product Details */}
@@ -512,15 +629,6 @@ const Products = () => {
                                 </span>
                                 <p className="text-sm sm:text-base font-medium text-foreground">
                                   {product.finish}
-                                </p>
-                              </div>
-
-                              <div className="space-y-1">
-                                <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                                  Price
-                                </span>
-                                <p className="text-lg sm:text-xl font-bold text-primary">
-                                  {product.price}
                                 </p>
                               </div>
                             </div>

@@ -44,26 +44,35 @@ const Footer = () => {
                   rel="noopener noreferrer"
                   className="hover:text-primary transition-colors"
                 >
-                  Gala No. 30, Alpha Ind. Estate S.No 21/1, Bilalpad Vasai,
-                  Vasai, Palghar-401208, Maharashtra, India
+                  UNIT NO 13, SINGH INDUSTRIAL ESTATE, NR. KALIMATA MANDIR,
+                  KHERPADA, WALIV, VASAI-EAST, PALGHAR, Maharashtra, 401208
                 </a>
               </li>
               <li className="flex items-center space-x-3 text-sm md:text-base text-muted-foreground group">
                 <Phone className="h-5 w-5 flex-shrink-0 text-primary group-hover:scale-110 transition-transform" />
                 <a
-                  href="tel:+919992252256"
+                  href="tel:+919082780156"
                   className="hover:text-primary transition-colors font-medium"
                 >
-                  +91 9992252256
+                  +91 9082780156
                 </a>
               </li>
               <li className="flex items-center space-x-3 text-sm md:text-base text-muted-foreground group">
                 <Mail className="h-5 w-5 flex-shrink-0 text-primary group-hover:scale-110 transition-transform" />
                 <a
-                  href="mailto:shisaistee@gmail.com"
+                  href="mailto:triclover.india@gmail.com"
                   className="hover:text-primary transition-colors font-medium"
                 >
-                  shisaistee@gmail.com
+                  triclover.india@gmail.com
+                </a>
+              </li>
+              <li className="flex items-center space-x-3 text-sm md:text-base text-muted-foreground group">
+                <Mail className="h-5 w-5 flex-shrink-0 text-primary group-hover:scale-110 transition-transform" />
+                <a
+                  href="mailto:shisaisteel@gmail.com"
+                  className="hover:text-primary transition-colors font-medium"
+                >
+                  shisaisteel@gmail.com
                 </a>
               </li>
             </ul>

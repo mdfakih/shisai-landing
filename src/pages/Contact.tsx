@@ -49,22 +49,22 @@ const Contact = () => {
       icon: MapPin,
       title: 'Address',
       details: [
-        'Gala No. 30, Alpha Ind. Estate',
-        'S.No 21/1, Bilalpad Vasai',
-        'Vasai, Palghar-401208',
-        'Maharashtra, India',
+        'UNIT NO 13, SINGH INDUSTRIAL ESTATE',
+        'NR. KALIMATA MANDIR, KHERPADA',
+        'WALIV, VASAI-EAST, PALGHAR',
+        'Maharashtra, 401208',
       ],
       mapLink: 'https://www.google.co.in/maps/dir//19.42259000,72.85411000',
     },
     phone: {
       icon: Phone,
       title: 'Phone',
-      details: ['+91 9992252256', '+91 9082780156'],
+      details: ['+91 9082780156'],
     },
     email: {
       icon: Mail,
       title: 'Email',
-      details: ['shisaistee@gmail.com', 'triclover.india@gmail.com'],
+      details: ['triclover.india@gmail.com', 'shisaisteel@gmail.com'],
     },
   };
 
