@@ -59,7 +59,7 @@ const Contact = () => {
     phone: {
       icon: Phone,
       title: 'Phone',
-      details: ['+91 9082780156'],
+      details: ['+91 9992252256'],
     },
     email: {
       icon: Mail,

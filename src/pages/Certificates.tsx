@@ -191,7 +191,7 @@ const Certificates = () => {
                   {cert.description}
                 </CardDescription>
 
-                {/* Actual PDF Preview */}
+                {/* PDF Preview */}
                 <div className="relative group/preview">
                   <div className="relative h-48 md:h-64 bg-white rounded-lg border-2 border-border hover:border-primary/50 transition-all duration-300 overflow-hidden shadow-inner">
                     {/* Loading State */}
@@ -217,18 +217,18 @@ const Certificates = () => {
                       </div>
                     )}
 
-                    {/* PDF Embed */}
+                    {/* PDF Embed - Fixed for mobile */}
                     <iframe
-                      src={`${cert.file}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
-                      className="w-full h-full border-0 pointer-events-none"
+                      src={`${cert.file}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=50`}
+                      className="w-full h-full border-0 pointer-events-none bg-white"
                       title={`${cert.title} Preview`}
                       onLoad={() => handleIframeLoad(index)}
                       onError={() => handleIframeError(index)}
                       style={{
-                        transform: 'scale(0.8)',
+                        transform: 'scale(0.7)',
                         transformOrigin: 'top left',
-                        width: '125%',
-                        height: '125%',
+                        width: '142%',
+                        height: '142%',
                       }}
                     />
 
@@ -366,8 +366,8 @@ const Certificates = () => {
 
         {/* Certificate Preview Modal */}
         {selectedCertificate && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-2 md:p-4 bg-black/80 backdrop-blur-sm animate-modal-fade-in">
-            <div className="relative w-full max-w-6xl max-h-[95vh] md:max-h-[90vh] bg-background rounded-xl md:rounded-2xl shadow-2xl overflow-hidden animate-modal-scale-in">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-0 md:p-4 bg-black/80 backdrop-blur-sm animate-modal-fade-in">
+            <div className="relative w-full h-full md:max-w-6xl md:max-h-[90vh] md:h-auto bg-background md:rounded-2xl shadow-2xl overflow-hidden animate-modal-scale-in">
               {/* Modal Header */}
               <div className="flex items-center justify-between p-4 md:p-6 border-b border-border bg-muted/30">
                 <div className="flex-1 min-w-0 pr-4">
@@ -401,29 +401,26 @@ const Certificates = () => {
               </div>
 
               {/* Modal Content */}
-              <div className="relative h-[calc(95vh-80px)] md:h-[calc(90vh-120px)] bg-white">
+              <div className="relative h-[calc(100vh-80px)] md:h-[calc(90vh-120px)] bg-white">
                 {/* Enhanced PDF Viewer */}
                 <iframe
-                  src={`${selectedCertificate.file}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`}
+                  src={`${selectedCertificate.file}#toolbar=1&navpanes=0&scrollbar=1&view=FitH`}
                   className="w-full h-full border-0"
                   title={selectedCertificate.title}
                 />
               </div>
 
-              {/* Mobile-friendly close area */}
-              <div className="md:hidden absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10">
-                <button
-                  onClick={closePreview}
-                  className="bg-background/90 backdrop-blur-sm border border-border rounded-full p-3 shadow-lg hover:bg-muted active:scale-95 transition-all duration-300"
-                >
-                  <X className="h-5 w-5" />
-                </button>
+              {/* Mobile-friendly close area - Only show if header close button is not easily accessible */}
+              <div className="md:hidden absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 pointer-events-none">
+                <div className="bg-background/90 backdrop-blur-sm border border-border rounded-full px-4 py-2 shadow-lg text-xs text-muted-foreground">
+                  Swipe down or tap × to close
+                </div>
               </div>
             </div>
 
-            {/* Click outside to close */}
+            {/* Click outside to close - Only on desktop */}
             <div
-              className="absolute inset-0 -z-10"
+              className="hidden md:block absolute inset-0 -z-10"
               onClick={closePreview}
             />
           </div>
