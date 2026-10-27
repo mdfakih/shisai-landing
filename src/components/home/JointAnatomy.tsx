@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { ChevronDown, MousePointer2 } from "lucide-react";
 import { TriClamp3D } from "@/components/brand/TriClamp3D";
 import { PartId } from "@/components/brand/TriClampAssembly";
@@ -60,8 +68,6 @@ const seg = (p: number, a: number, b: number) =>
  */
 export function JointAnatomy() {
   const { ref, progress } = useScrollProgress<HTMLDivElement>();
-  const stripRef = useRef<HTMLOListElement>(null);
-  const stripLock = useRef(0);
 
   const { spread, lift, active, fit } = useMemo(() => {
     const spread = 1 - seg(progress, 0.14, 0.42);
@@ -85,39 +91,6 @@ export function JointAnatomy() {
     },
     [ref],
   );
-
-  // Keep the mobile strip centred on the active step as the page scrolls.
-  useEffect(() => {
-    const strip = stripRef.current;
-    if (!strip || !strip.offsetParent) return;
-    const card = strip.children[active] as HTMLElement | undefined;
-    if (!card) return;
-    const target = card.offsetLeft - (strip.clientWidth - card.clientWidth) / 2;
-    if (Math.abs(strip.scrollLeft - target) < 4) return;
-    stripLock.current = performance.now();
-    strip.scrollTo({ left: target, behavior: "smooth" });
-  }, [active]);
-
-  // When the user swipes the strip, follow with the page.
-  const onStripScroll = useCallback(() => {
-    const strip = stripRef.current;
-    if (!strip || performance.now() - stripLock.current < 700) return;
-    const centre = strip.scrollLeft + strip.clientWidth / 2;
-    let nearest = 0;
-    let best = Infinity;
-    Array.from(strip.children).forEach((c, i) => {
-      const el = c as HTMLElement;
-      const d = Math.abs(el.offsetLeft + el.clientWidth / 2 - centre);
-      if (d < best) {
-        best = d;
-        nearest = i;
-      }
-    });
-    if (nearest !== active) {
-      stripLock.current = performance.now();
-      jumpTo(nearest);
-    }
-  }, [active, jumpTo]);
 
   const highlight = steps[active].part;
   const started = progress > 0.03;
@@ -210,42 +183,7 @@ export function JointAnatomy() {
           </ol>
 
           {/* Steps: swipeable strip on phones, fixed footprint */}
-          <div className="relative mt-3 shrink-0 lg:hidden">
-            <ol
-              ref={stripRef}
-              onScroll={onStripScroll}
-              className="no-scrollbar -mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-1"
-              aria-label="Assembly steps"
-            >
-              {steps.map((s, i) => (
-                <li
-                  key={s.label}
-                  className="w-[82%] shrink-0 snap-center sm:w-[70%]"
-                >
-                  <StripCard
-                    step={s}
-                    index={i}
-                    active={i === active}
-                    onSelect={() => jumpTo(i)}
-                  />
-                </li>
-              ))}
-            </ol>
-            <div
-              className="mt-2 flex items-center justify-center gap-1.5"
-              aria-hidden="true"
-            >
-              {steps.map((s, i) => (
-                <span
-                  key={s.label}
-                  className={cn(
-                    "h-1 rounded-full transition-all duration-300",
-                    i === active ? "w-6 bg-primary" : "w-1.5 bg-border",
-                  )}
-                />
-              ))}
-            </div>
-          </div>
+          <StepStrip active={active} onSelect={jumpTo} />
         </div>
       </div>
     </section>
@@ -319,6 +257,143 @@ function StepCard({ step, index, active, done, onSelect }: CardProps) {
     </button>
   );
 }
+
+interface StepStripProps {
+  active: number;
+  onSelect: (i: number) => void;
+}
+
+const SWIPE_PX = 40;
+const CARD_W = 0.82; // of the strip width
+const GAP = 12;
+
+/**
+ * Phone step strip. Not a scroll container: a transform-driven track that
+ * eases to the active card, so page scrolling never fights scroll-snap.
+ * Swiping asks the page to scroll to the neighbouring step; the track shows
+ * that step optimistically until the page catches up.
+ */
+const StepStrip = memo(function StepStrip({
+  active,
+  onSelect,
+}: StepStripProps) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(0);
+  const [pending, setPending] = useState<number | null>(null);
+  const [dragX, setDragX] = useState(0);
+  const touch = useRef<{
+    x: number;
+    y: number;
+    horizontal: boolean | null;
+  } | null>(null);
+  const pendingTimer = useRef(0);
+
+  useLayoutEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => setWidth(e.contentRect.width));
+    ro.observe(el);
+    setWidth(el.clientWidth);
+    return () => ro.disconnect();
+  }, []);
+
+  // Page caught up with the optimistic step.
+  useEffect(() => {
+    if (pending !== null && pending === active) setPending(null);
+  }, [active, pending]);
+
+  const shown = pending ?? active;
+  const cardW = width * CARD_W;
+  const x = width ? width / 2 - cardW / 2 - shown * (cardW + GAP) + dragX : 0;
+
+  const go = (i: number) => {
+    const next = Math.max(0, Math.min(steps.length - 1, i));
+    if (next === active) return;
+    setPending(next);
+    window.clearTimeout(pendingTimer.current);
+    pendingTimer.current = window.setTimeout(() => setPending(null), 1500);
+    onSelect(next);
+  };
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touch.current = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
+      horizontal: null,
+    };
+  };
+  const onTouchMove = (e: React.TouchEvent) => {
+    const t = touch.current;
+    if (!t) return;
+    const dx = e.touches[0].clientX - t.x;
+    const dy = e.touches[0].clientY - t.y;
+    if (t.horizontal === null && (Math.abs(dx) > 6 || Math.abs(dy) > 6))
+      t.horizontal = Math.abs(dx) > Math.abs(dy);
+    if (t.horizontal) setDragX(dx * 0.9);
+  };
+  const onTouchEnd = () => {
+    const t = touch.current;
+    touch.current = null;
+    if (!t) return;
+    const dx = dragX;
+    setDragX(0);
+    if (!t.horizontal || Math.abs(dx) < SWIPE_PX) return;
+    go(shown + (dx < 0 ? 1 : -1));
+  };
+
+  return (
+    <div className="relative mt-3 shrink-0 lg:hidden">
+      <div
+        ref={wrapRef}
+        className="-mx-5 touch-pan-y overflow-hidden px-0"
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+        onTouchCancel={onTouchEnd}
+      >
+        <ol
+          data-strip-track
+          aria-label="Assembly steps"
+          className="flex will-change-transform"
+          style={{
+            gap: GAP,
+            transform: `translate3d(${x}px,0,0)`,
+            transition: dragX ? "none" : "transform 520ms var(--ease-out-expo)",
+          }}
+        >
+          {steps.map((s, i) => (
+            <li
+              key={s.label}
+              className="shrink-0"
+              style={{ width: cardW || undefined }}
+            >
+              <StripCard
+                step={s}
+                index={i}
+                active={i === shown}
+                onSelect={() => go(i)}
+              />
+            </li>
+          ))}
+        </ol>
+      </div>
+      <div
+        className="mt-2 flex items-center justify-center gap-1.5"
+        aria-hidden="true"
+      >
+        {steps.map((s, i) => (
+          <span
+            key={s.label}
+            className={cn(
+              "h-1 rounded-full transition-all duration-300",
+              i === shown ? "w-6 bg-primary" : "w-1.5 bg-border",
+            )}
+          />
+        ))}
+      </div>
+    </div>
+  );
+});
 
 function StripCard({ step, index, active, onSelect }: CardProps) {
   return (
