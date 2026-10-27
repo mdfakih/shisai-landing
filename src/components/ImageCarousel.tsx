@@ -6,17 +6,21 @@ interface ImageCarouselProps {
   images: string[];
   productName: string;
   className?: string;
+  /** Classes for the image frame; override the aspect ratio here. */
+  frameClassName?: string;
   /** Auto-advance interval in ms; 0 disables. */
   interval?: number;
+  /** Called when the user swipes past the first/last image. */
+  onOverscroll?: (direction: 1 | -1) => void;
 }
 
-const SWIPE_PX = 50;
+const SWIPE_PX = 48;
 
-const ImageCarousel = ({ images, productName, className, interval = 0 }: ImageCarouselProps) => {
+const ImageCarousel = ({ images, productName, className, frameClassName, interval = 0, onOverscroll }: ImageCarouselProps) => {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
-  const startX = useRef(0);
-  const endX = useRef(0);
+  const start = useRef<{ x: number; y: number } | null>(null);
+  const end = useRef<{ x: number; y: number } | null>(null);
   const count = images.length;
 
   useEffect(() => {
@@ -34,20 +38,30 @@ const ImageCarousel = ({ images, productName, className, interval = 0 }: ImageCa
   const go = (next: number) => setIndex((next + count) % count);
 
   const onTouchEnd = () => {
-    const d = startX.current - endX.current;
-    if (!startX.current || !endX.current || count <= 1) return;
-    if (d > SWIPE_PX) go(index + 1);
-    if (d < -SWIPE_PX) go(index - 1);
-    startX.current = 0;
-    endX.current = 0;
+    const s = start.current;
+    const e = end.current;
+    start.current = null;
+    end.current = null;
+    if (!s || !e) return;
+    const dx = s.x - e.x;
+    const dy = s.y - e.y;
+    // Ignore mostly-vertical gestures so page scrolling stays natural.
+    if (Math.abs(dx) < SWIPE_PX || Math.abs(dx) < Math.abs(dy) * 1.3) return;
+    const dir: 1 | -1 = dx > 0 ? 1 : -1;
+    const atEdge = dir === 1 ? index === count - 1 : index === 0;
+    if (count <= 1 || atEdge) {
+      onOverscroll?.(dir);
+      return;
+    }
+    go(index + dir);
   };
 
   return (
     <div className={cn('relative w-full', className)}>
       <div
-        className="group relative aspect-square overflow-hidden rounded-md plate"
-        onTouchStart={(e) => (startX.current = e.targetTouches[0].clientX)}
-        onTouchMove={(e) => (endX.current = e.targetTouches[0].clientX)}
+        className={cn('plate group relative aspect-square overflow-hidden rounded-md', frameClassName)}
+        onTouchStart={(e) => (start.current = { x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY })}
+        onTouchMove={(e) => (end.current = { x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY })}
         onTouchEnd={onTouchEnd}
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
@@ -62,7 +76,7 @@ const ImageCarousel = ({ images, productName, className, interval = 0 }: ImageCa
             decoding="async"
             draggable={false}
             className={cn(
-              'absolute inset-0 h-full w-full select-none object-contain p-4 transition-opacity duration-500 sm:p-6',
+              'absolute inset-0 h-full w-full select-none object-contain p-3 transition-opacity duration-500 sm:p-6',
               i === index ? 'opacity-100' : 'opacity-0',
             )}
           />
@@ -74,7 +88,7 @@ const ImageCarousel = ({ images, productName, className, interval = 0 }: ImageCa
               type="button"
               onClick={() => go(index - 1)}
               aria-label="Previous image"
-              className="absolute left-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card/90 text-foreground opacity-0 shadow-sm transition-all hover:bg-card group-hover:opacity-100 focus:opacity-100"
+              className="absolute left-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card/90 text-foreground shadow-sm transition-all hover:bg-card md:opacity-0 md:group-hover:opacity-100 md:focus:opacity-100"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -82,11 +96,11 @@ const ImageCarousel = ({ images, productName, className, interval = 0 }: ImageCa
               type="button"
               onClick={() => go(index + 1)}
               aria-label="Next image"
-              className="absolute right-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card/90 text-foreground opacity-0 shadow-sm transition-all hover:bg-card group-hover:opacity-100 focus:opacity-100"
+              className="absolute right-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card/90 text-foreground shadow-sm transition-all hover:bg-card md:opacity-0 md:group-hover:opacity-100 md:focus:opacity-100"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
-            <span className="absolute right-3 top-3 rounded border border-border bg-card/80 px-1.5 py-0.5 font-mono text-[10px] tracking-wider text-foreground/70 backdrop-blur">
+            <span className="absolute bottom-3 right-3 rounded border border-border bg-card/80 px-1.5 py-0.5 font-mono text-[10px] tracking-wider text-foreground/70 backdrop-blur">
               {index + 1} / {count}
             </span>
           </>
@@ -101,10 +115,7 @@ const ImageCarousel = ({ images, productName, className, interval = 0 }: ImageCa
               type="button"
               onClick={() => go(i)}
               aria-label={`Go to image ${i + 1}`}
-              className={cn(
-                'h-1 rounded-full transition-all duration-300',
-                i === index ? 'w-6 bg-primary' : 'w-2 bg-border hover:bg-steel',
-              )}
+              className={cn('h-1 rounded-full transition-all duration-300', i === index ? 'w-6 bg-primary' : 'w-2 bg-border hover:bg-steel')}
             />
           ))}
         </div>

@@ -32,7 +32,8 @@ src/
   lib/gl/         hand-written WebGL viewer: math, lathe geometry, matcap, scene
   pages/          Home, Products, About, Certificates, Contact, NotFound
 scripts/
-  optimize-images.mjs   converts new JPG/PNG assets to WebP, trims the logo
+  optimize-images.mjs       converts new JPG/PNG assets to WebP, trims the logo
+  render-certificates.mjs   renders page 1 of each certificate PDF to WebP previews
 ```
 
 ## Editing content
@@ -40,7 +41,9 @@ scripts/
 - **Contact details, hours, GST, stats, certificates** → `src/data/company.ts`
 - **Products** → `src/data/products.ts` (add images under `src/assets/products/`,
   then run `npm run optimize:images` to convert them to WebP)
-- **Certificate PDFs** → `public/certificates/`
+- **Certificate PDFs** → `public/certificates/`, then run
+  `node scripts/render-certificates.mjs` to regenerate the image previews in
+  `public/certificates/previews/` (the site shows these instead of PDF iframes)
 
 Items in `company.ts` marked `verify` (dimensional standards, Ra values) should be
 confirmed with the client before launch.
@@ -56,8 +59,9 @@ confirmed with the client before launch.
   assembly state.
 - Secondary routes are code-split; the landing page ships ~100 KB gzipped JS.
 - All raster assets are WebP; product shots are cropped and capped at 560 px.
-- PDFs load only when a certificate preview is opened. The Google Map iframe
-  mounts only when scrolled near.
+- Certificates are previewed as pre-rendered WebP images, never PDF iframes;
+  the PDF downloads only on request. The Google Map iframe mounts only when
+  scrolled near.
 - Every animation respects `prefers-reduced-motion`.
 
 ## Theme

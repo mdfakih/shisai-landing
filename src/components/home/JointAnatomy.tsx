@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { ChevronDown, MousePointer2 } from 'lucide-react';
 import { TriClamp3D } from '@/components/brand/TriClamp3D';
 import { PartId } from '@/components/brand/TriClampAssembly';
@@ -51,11 +51,14 @@ const seg = (p: number, a: number, b: number) => ease(Math.min(1, Math.max(0, (p
 
 /**
  * Scroll-pinned assembly. Ferrules seat first, then the clamp drops.
- * Steps are an accordion; clicking one scrolls to the matching progress,
- * so the same animation plays either way.
+ * Desktop: steps are an accordion. Phones: a horizontal snap strip you can
+ * swipe. Either way, selecting a step scrolls to the matching progress so
+ * the same animation plays.
  */
 export function JointAnatomy() {
   const { ref, progress } = useScrollProgress<HTMLDivElement>();
+  const stripRef = useRef<HTMLOListElement>(null);
+  const stripLock = useRef(0);
 
   const { spread, lift, active } = useMemo(() => {
     const spread = 1 - seg(progress, 0.14, 0.42);
@@ -75,6 +78,39 @@ export function JointAnatomy() {
     [ref],
   );
 
+  // Keep the mobile strip centred on the active step as the page scrolls.
+  useEffect(() => {
+    const strip = stripRef.current;
+    if (!strip || !strip.offsetParent) return;
+    const card = strip.children[active] as HTMLElement | undefined;
+    if (!card) return;
+    const target = card.offsetLeft - (strip.clientWidth - card.clientWidth) / 2;
+    if (Math.abs(strip.scrollLeft - target) < 4) return;
+    stripLock.current = performance.now();
+    strip.scrollTo({ left: target, behavior: 'smooth' });
+  }, [active]);
+
+  // When the user swipes the strip, follow with the page.
+  const onStripScroll = useCallback(() => {
+    const strip = stripRef.current;
+    if (!strip || performance.now() - stripLock.current < 700) return;
+    const centre = strip.scrollLeft + strip.clientWidth / 2;
+    let nearest = 0;
+    let best = Infinity;
+    Array.from(strip.children).forEach((c, i) => {
+      const el = c as HTMLElement;
+      const d = Math.abs(el.offsetLeft + el.clientWidth / 2 - centre);
+      if (d < best) {
+        best = d;
+        nearest = i;
+      }
+    });
+    if (nearest !== active) {
+      stripLock.current = performance.now();
+      jumpTo(nearest);
+    }
+  }, [active, jumpTo]);
+
   const highlight = steps[active].part;
   const started = progress > 0.03;
 
@@ -83,18 +119,16 @@ export function JointAnatomy() {
       <div className="sticky top-[var(--nav-h)] flex h-[calc(100svh-var(--nav-h))] flex-col overflow-hidden">
         <div className="grid-paper absolute inset-0 opacity-60 [mask-image:radial-gradient(80%_70%_at_30%_50%,black,transparent)]" aria-hidden="true" />
 
-        <div className="container relative flex flex-1 flex-col py-5 lg:grid lg:grid-cols-12 lg:items-center lg:gap-10 lg:py-0">
+        <div className="container relative flex min-h-0 flex-1 flex-col py-4 lg:grid lg:grid-cols-12 lg:items-center lg:gap-10 lg:py-0">
           {/* Heading */}
-          <div className="mb-3 flex items-center justify-between lg:absolute lg:left-0 lg:top-10 lg:mb-0 lg:px-10">
-            <p className="eyebrow flex items-center gap-3">
-              <span className="text-primary">02</span>
-              <span className="h-px w-6 bg-border" />
-              <span>Anatomy of a hygienic joint</span>
-            </p>
-          </div>
+          <p className="eyebrow mb-2 flex items-center gap-3 lg:absolute lg:left-0 lg:top-10 lg:mb-0 lg:px-10">
+            <span className="text-primary">02</span>
+            <span className="h-px w-6 bg-border" />
+            <span>Anatomy of a hygienic joint</span>
+          </p>
 
-          {/* Visual */}
-          <div className="relative mx-auto w-full max-w-[560px] lg:col-span-7 lg:max-w-none">
+          {/* Visual: width capped by viewport height so it always fits above the steps */}
+          <div className="relative mx-auto w-full max-w-[min(560px,62svh)] lg:col-span-7 lg:max-w-none">
             <TriClamp3D
               spread={spread}
               lift={lift}
@@ -105,24 +139,9 @@ export function JointAnatomy() {
               yaw={-0.85}
               pitch={0.3}
             />
-            {/* progress rail */}
-            <div className="mt-1 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-              <span>Exploded</span>
-              <span className="relative h-px flex-1 bg-border">
-                <span
-                  className="absolute inset-y-0 left-0 bg-primary"
-                  style={{ width: `${Math.min(100, Math.max(0, (progress / 0.76) * 100))}%` }}
-                />
-                {BANDS.map((b) => (
-                  <span key={b} className="absolute top-1/2 h-2 w-px -translate-y-1/2 bg-border" style={{ left: `${(b / 0.76) * 100}%` }} />
-                ))}
-              </span>
-              <span>Assembled</span>
-            </div>
-            {/* scroll nudge */}
             <div
               className={cn(
-                'pointer-events-none absolute left-1/2 top-2 flex -translate-x-1/2 items-center gap-2 rounded-full border border-primary/30 bg-card/85 px-3 py-1.5 font-mono text-[10.5px] uppercase tracking-[0.16em] text-primary backdrop-blur transition-all duration-500',
+                'pointer-events-none absolute left-1/2 top-2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full border border-primary/30 bg-card/85 px-3 py-1.5 font-mono text-[10.5px] uppercase tracking-[0.16em] text-primary backdrop-blur transition-all duration-500',
                 started ? '-translate-y-2 opacity-0' : 'opacity-100',
               )}
               aria-hidden="true"
@@ -133,76 +152,130 @@ export function JointAnatomy() {
             </div>
           </div>
 
-          {/* Steps as an accordion */}
-          <ol className="mt-4 space-y-2 lg:col-span-5 lg:mt-0" aria-label="Assembly steps">
-            {steps.map((s, i) => {
-              const isActive = i === active;
-              const done = i < active;
-              return (
-                <li key={s.label}>
-                  <button
-                    type="button"
-                    onClick={() => jumpTo(i)}
-                    aria-expanded={isActive}
-                    aria-current={isActive ? 'step' : undefined}
-                    className={cn(
-                      'group w-full rounded-lg border text-left transition-[background-color,border-color,box-shadow,transform] duration-500 [transition-timing-function:var(--ease-out-expo)]',
-                      isActive
-                        ? 'border-primary/50 bg-card shadow-[0_18px_40px_-28px_hsl(var(--primary)/0.5)] lg:translate-x-1'
-                        : 'border-border/70 bg-transparent hover:border-primary/30 hover:bg-card/60',
-                    )}
-                  >
-                    <div className="flex items-center gap-4 px-4 py-3 sm:px-5">
-                      <span
-                        className={cn(
-                          'flex h-7 w-7 shrink-0 items-center justify-center rounded-full border font-mono text-[11px] transition-colors duration-500',
-                          isActive
-                            ? 'border-primary bg-primary text-primary-foreground'
-                            : done
-                              ? 'border-primary/40 text-primary'
-                              : 'border-border text-muted-foreground',
-                        )}
-                      >
-                        0{i + 1}
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <p className={cn('eyebrow transition-colors', isActive && 'text-primary')}>{s.label}</p>
-                        <h3
-                          className={cn(
-                            'truncate text-[15px] font-semibold tracking-tight transition-colors duration-500 sm:text-lg',
-                            isActive ? 'text-foreground' : 'text-foreground/60 group-hover:text-foreground/85',
-                          )}
-                        >
-                          {s.title}
-                        </h3>
-                      </div>
-                      <ChevronDown
-                        className={cn(
-                          'h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-500 [transition-timing-function:var(--ease-out-expo)]',
-                          isActive && 'rotate-180 text-primary',
-                        )}
-                      />
-                    </div>
-                    {/* Accordion body: grid-rows trick animates height without JS */}
-                    <div
-                      className={cn(
-                        'grid transition-[grid-template-rows,opacity] duration-500 [transition-timing-function:var(--ease-out-expo)]',
-                        isActive ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
-                      )}
-                    >
-                      <div className="overflow-hidden">
-                        <p className="px-4 pb-4 pl-[3.75rem] text-sm leading-relaxed text-muted-foreground sm:px-5 sm:pl-[4rem]">
-                          {s.body}
-                        </p>
-                      </div>
-                    </div>
-                  </button>
-                </li>
-              );
-            })}
+          {/* Progress rail */}
+          <div className="mx-auto mt-1 flex w-full max-w-[560px] items-center gap-3 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground lg:col-span-7 lg:max-w-none">
+            <span>Exploded</span>
+            <span className="relative h-px flex-1 bg-border">
+              <span className="absolute inset-y-0 left-0 bg-primary" style={{ width: `${Math.min(100, Math.max(0, (progress / 0.76) * 100))}%` }} />
+              {BANDS.map((b) => (
+                <span key={b} className="absolute top-1/2 h-2 w-px -translate-y-1/2 bg-border" style={{ left: `${(b / 0.76) * 100}%` }} />
+              ))}
+            </span>
+            <span>Assembled</span>
+          </div>
+
+          {/* Steps: accordion on desktop */}
+          <ol className="hidden space-y-2 lg:col-span-5 lg:col-start-8 lg:row-start-1 lg:block" aria-label="Assembly steps">
+            {steps.map((s, i) => (
+              <li key={s.label}>
+                <StepCard step={s} index={i} active={i === active} done={i < active} onSelect={() => jumpTo(i)} />
+              </li>
+            ))}
           </ol>
+
+          {/* Steps: swipeable strip on phones */}
+          <div className="relative mt-3 min-h-0 lg:hidden">
+            <ol
+              ref={stripRef}
+              onScroll={onStripScroll}
+              className="no-scrollbar -mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-1"
+              aria-label="Assembly steps"
+            >
+              {steps.map((s, i) => (
+                <li key={s.label} className="w-[82%] shrink-0 snap-center sm:w-[70%]">
+                  <StripCard step={s} index={i} active={i === active} onSelect={() => jumpTo(i)} />
+                </li>
+              ))}
+            </ol>
+            <div className="mt-2 flex items-center justify-center gap-1.5" aria-hidden="true">
+              {steps.map((s, i) => (
+                <span
+                  key={s.label}
+                  className={cn('h-1 rounded-full transition-all duration-300', i === active ? 'w-6 bg-primary' : 'w-1.5 bg-border')}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>
+  );
+}
+
+interface CardProps {
+  step: Step;
+  index: number;
+  active: boolean;
+  done?: boolean;
+  onSelect: () => void;
+}
+
+function StepCard({ step, index, active, done, onSelect }: CardProps) {
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-expanded={active}
+      aria-current={active ? 'step' : undefined}
+      className={cn(
+        'group w-full rounded-lg border text-left transition-[background-color,border-color,box-shadow,transform] duration-500 [transition-timing-function:var(--ease-out-expo)]',
+        active
+          ? 'border-primary/50 bg-card shadow-[0_18px_40px_-28px_hsl(var(--primary)/0.5)] translate-x-1'
+          : 'border-border/70 bg-transparent hover:border-primary/30 hover:bg-card/60',
+      )}
+    >
+      <div className="flex items-center gap-4 px-5 py-3">
+        <Badge index={index} active={active} done={done} />
+        <div className="min-w-0 flex-1">
+          <p className={cn('eyebrow transition-colors', active && 'text-primary')}>{step.label}</p>
+          <h3 className={cn('truncate text-lg font-semibold tracking-tight transition-colors duration-500', active ? 'text-foreground' : 'text-foreground/60 group-hover:text-foreground/85')}>
+            {step.title}
+          </h3>
+        </div>
+        <ChevronDown className={cn('h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-500 [transition-timing-function:var(--ease-out-expo)]', active && 'rotate-180 text-primary')} />
+      </div>
+      {/* grid-rows accordion; min-h-0 on the inner row is required for WebKit to collapse to 0fr */}
+      <div className={cn('grid transition-[grid-template-rows,opacity] duration-500 [transition-timing-function:var(--ease-out-expo)]', active ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0')}>
+        <div className="min-h-0 overflow-hidden">
+          <p className="px-5 pb-4 pl-[4rem] text-sm leading-relaxed text-muted-foreground">{step.body}</p>
+        </div>
+      </div>
+    </button>
+  );
+}
+
+function StripCard({ step, index, active, onSelect }: CardProps) {
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-current={active ? 'step' : undefined}
+      className={cn(
+        'flex h-full w-full flex-col rounded-lg border bg-card p-4 text-left transition-[border-color,box-shadow,opacity] duration-500',
+        active ? 'border-primary/50 shadow-[0_18px_40px_-28px_hsl(var(--primary)/0.5)]' : 'border-border/70 opacity-70',
+      )}
+    >
+      <div className="flex items-center gap-3">
+        <Badge index={index} active={active} />
+        <div className="min-w-0">
+          <p className={cn('eyebrow', active && 'text-primary')}>{step.label}</p>
+          <h3 className="text-[15px] font-semibold leading-snug tracking-tight text-foreground">{step.title}</h3>
+        </div>
+      </div>
+      <p className="mt-3 line-clamp-3 text-[13px] leading-relaxed text-muted-foreground">{step.body}</p>
+    </button>
+  );
+}
+
+function Badge({ index, active, done }: { index: number; active: boolean; done?: boolean }) {
+  return (
+    <span
+      className={cn(
+        'flex h-7 w-7 shrink-0 items-center justify-center rounded-full border font-mono text-[11px] transition-colors duration-500',
+        active ? 'border-primary bg-primary text-primary-foreground' : done ? 'border-primary/40 text-primary' : 'border-border text-muted-foreground',
+      )}
+    >
+      0{index + 1}
+    </span>
   );
 }
