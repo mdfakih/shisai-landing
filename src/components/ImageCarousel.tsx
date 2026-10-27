@@ -1,139 +1,112 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface ImageCarouselProps {
   images: string[];
   productName: string;
   className?: string;
+  /** Auto-advance interval in ms; 0 disables. */
+  interval?: number;
 }
 
-const ImageCarousel = ({
-  images,
-  productName,
-  className = '',
-}: ImageCarouselProps) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-  const touchStartX = useRef<number>(0);
-  const touchEndX = useRef<number>(0);
+const SWIPE_PX = 50;
 
-  // Auto-advance carousel every 5 seconds
+const ImageCarousel = ({ images, productName, className, interval = 0 }: ImageCarouselProps) => {
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const startX = useRef(0);
+  const endX = useRef(0);
+  const count = images.length;
+
   useEffect(() => {
-    if (images.length <= 1 || !isAutoPlaying) return;
+    setIndex(0);
+  }, [images]);
 
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % images.length);
-    }, 5000);
+  useEffect(() => {
+    if (count <= 1 || paused || interval <= 0) return;
+    const t = setInterval(() => setIndex((i) => (i + 1) % count), interval);
+    return () => clearInterval(t);
+  }, [count, paused, interval]);
 
-    return () => clearInterval(interval);
-  }, [images.length, isAutoPlaying]);
+  if (count === 0) return null;
 
-  const goToSlide = (index: number) => {
-    setCurrentIndex(index);
-    setIsAutoPlaying(false);
-    // Resume auto-play after 10 seconds of inactivity
-    setTimeout(() => setIsAutoPlaying(true), 10000);
+  const go = (next: number) => setIndex((next + count) % count);
+
+  const onTouchEnd = () => {
+    const d = startX.current - endX.current;
+    if (!startX.current || !endX.current || count <= 1) return;
+    if (d > SWIPE_PX) go(index + 1);
+    if (d < -SWIPE_PX) go(index - 1);
+    startX.current = 0;
+    endX.current = 0;
   };
-
-  const goToPrevious = () => {
-    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
-    setIsAutoPlaying(false);
-    setTimeout(() => setIsAutoPlaying(true), 10000);
-  };
-
-  const goToNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % images.length);
-    setIsAutoPlaying(false);
-    setTimeout(() => setIsAutoPlaying(true), 10000);
-  };
-
-  // Touch handlers for swipe functionality
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.targetTouches[0].clientX;
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    touchEndX.current = e.targetTouches[0].clientX;
-  };
-
-  const handleTouchEnd = () => {
-    if (!touchStartX.current || !touchEndX.current) return;
-
-    const distance = touchStartX.current - touchEndX.current;
-    const isLeftSwipe = distance > 50;
-    const isRightSwipe = distance < -50;
-
-    if (isLeftSwipe && images.length > 1) {
-      goToNext();
-    }
-    if (isRightSwipe && images.length > 1) {
-      goToPrevious();
-    }
-  };
-
-  if (images.length === 0) return null;
 
   return (
-    <div className={`relative w-full ${className}`}>
-      {/* Main Image Container */}
+    <div className={cn('relative w-full', className)}>
       <div
-        className="relative aspect-square overflow-hidden rounded-lg bg-muted group cursor-pointer"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        onMouseEnter={() => setIsAutoPlaying(false)}
-        onMouseLeave={() => setIsAutoPlaying(true)}
+        className="group relative aspect-square overflow-hidden rounded-md plate"
+        onTouchStart={(e) => (startX.current = e.targetTouches[0].clientX)}
+        onTouchMove={(e) => (endX.current = e.targetTouches[0].clientX)}
+        onTouchEnd={onTouchEnd}
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
       >
-        <img
-          src={images[currentIndex]}
-          alt={`${productName} - Image ${currentIndex + 1}`}
-          className="w-full h-full object-contain p-2 sm:p-4 lg:p-6 transition-opacity duration-300 select-none"
-          draggable={false}
-        />
+        <div className="grid-paper absolute inset-0 opacity-50" aria-hidden="true" />
+        {images.map((src, i) => (
+          <img
+            key={src + i}
+            src={src}
+            alt={`${productName}, view ${i + 1}`}
+            loading={i === 0 ? 'eager' : 'lazy'}
+            decoding="async"
+            draggable={false}
+            className={cn(
+              'absolute inset-0 h-full w-full select-none object-contain p-4 transition-opacity duration-500 sm:p-6',
+              i === index ? 'opacity-100' : 'opacity-0',
+            )}
+          />
+        ))}
 
-        {/* Navigation Arrows - Only show if more than 1 image */}
-        {images.length > 1 && (
+        {count > 1 && (
           <>
             <button
-              onClick={goToPrevious}
-              className="absolute left-1 sm:left-2 bottom-8 sm:bottom-10 lg:bottom-12 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 sm:p-1.5 lg:p-2 transition-all duration-200 opacity-0 group-hover:opacity-100 focus:opacity-100 z-10"
+              type="button"
+              onClick={() => go(index - 1)}
               aria-label="Previous image"
+              className="absolute left-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card/90 text-foreground opacity-0 shadow-sm transition-all hover:bg-card group-hover:opacity-100 focus:opacity-100"
             >
-              <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
+              <ChevronLeft className="h-4 w-4" />
             </button>
             <button
-              onClick={goToNext}
-              className="absolute right-1 sm:right-2 bottom-8 sm:bottom-10 lg:bottom-12 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 sm:p-1.5 lg:p-2 transition-all duration-200 opacity-0 group-hover:opacity-100 focus:opacity-100 z-10"
+              type="button"
+              onClick={() => go(index + 1)}
               aria-label="Next image"
+              className="absolute right-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card/90 text-foreground opacity-0 shadow-sm transition-all hover:bg-card group-hover:opacity-100 focus:opacity-100"
             >
-              <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
+              <ChevronRight className="h-4 w-4" />
             </button>
+            <span className="absolute right-3 top-3 rounded border border-border bg-card/80 px-1.5 py-0.5 font-mono text-[10px] tracking-wider text-foreground/70 backdrop-blur">
+              {index + 1} / {count}
+            </span>
           </>
         )}
       </div>
 
-      {/* Dots Indicator - Only show if more than 1 image */}
-      {images.length > 1 && (
-        <div className="flex justify-center mt-2 sm:mt-3 lg:mt-4 space-x-1.5 sm:space-x-2">
-          {images.map((_, index) => (
+      {count > 1 && (
+        <div className="mt-3 flex justify-center gap-2">
+          {images.map((_, i) => (
             <button
-              key={index}
-              onClick={() => goToSlide(index)}
-              className={`w-1.5 h-1.5 sm:w-2 sm:h-2 lg:w-2.5 lg:h-2.5 rounded-full transition-all duration-200 ${
-                index === currentIndex
-                  ? 'bg-primary scale-110 shadow-sm'
-                  : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
-              }`}
-              aria-label={`Go to image ${index + 1}`}
+              key={i}
+              type="button"
+              onClick={() => go(i)}
+              aria-label={`Go to image ${i + 1}`}
+              className={cn(
+                'h-1 rounded-full transition-all duration-300',
+                i === index ? 'w-6 bg-primary' : 'w-2 bg-border hover:bg-steel',
+              )}
             />
           ))}
-        </div>
-      )}
-
-      {/* Image Counter */}
-      {images.length > 1 && (
-        <div className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-black/50 text-white text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md">
-          {currentIndex + 1} / {images.length}
         </div>
       )}
     </div>

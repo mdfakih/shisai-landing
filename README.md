@@ -1,73 +1,75 @@
-# Welcome to your Lovable project
+# Shisai Steel Industries — website
 
-## Project info
+Marketing site for a hygienic stainless steel fittings manufacturer in Vasai, India.
+Vite + React 18 + TypeScript + Tailwind, deployed on Vercel.
 
-**URL**: https://lovable.dev/projects/f6ea6fdb-7999-4eee-ac4d-ae5e1fb0e23c
-
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/f6ea6fdb-7999-4eee-ac4d-ae5e1fb0e23c) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+## Run
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+npm install
+npm run dev        # http://localhost:8080
+npm run build      # production bundle in dist/
+npm run preview    # serve dist/ locally
+npm run typecheck
+npm run lint
 ```
 
-**Edit a file directly in GitHub**
+## Structure
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```
+src/
+  data/           company.ts (contact, stats, certificates), products.ts (catalogue)
+  components/
+    brand/        TriClamp3D.tsx — WebGL tri-clamp joint (hero + exploded view),
+                  TriClampAssembly.tsx — SVG placeholder / no-WebGL fallback,
+                  dimensions.ts + DimensionOverlay.tsx — callouts anchored to 3D points
+    home/         one file per home-page section
+    layout/       Navigation, Footer, PageIntro, WhatsAppFab
+    motion/       Reveal.tsx — IntersectionObserver reveal wrapper
+    products/     ProductCard, ProductDialog
+    shared/       SectionHeading, Marquee, CtaButtons, BrandLogo
+  hooks/          useReveal, useScrollProgress, useCountUp, useScrollSpy, useTheme
+  lib/gl/         hand-written WebGL viewer: math, lathe geometry, matcap, scene
+  pages/          Home, Products, About, Certificates, Contact, NotFound
+scripts/
+  optimize-images.mjs   converts new JPG/PNG assets to WebP, trims the logo
+```
 
-**Use GitHub Codespaces**
+## Editing content
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- **Contact details, hours, GST, stats, certificates** → `src/data/company.ts`
+- **Products** → `src/data/products.ts` (add images under `src/assets/products/`,
+  then run `npm run optimize:images` to convert them to WebP)
+- **Certificate PDFs** → `public/certificates/`
 
-## What technologies are used for this project?
+Items in `company.ts` marked `verify` (dimensional standards, Ra values) should be
+confirmed with the client before launch.
 
-This project is built with:
+## Performance notes
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- No animation or 3D libraries. The hero object is a ~5 KB gzipped hand-written
+  WebGL viewer (`src/lib/gl`) that lazy-loads after first paint and cross-fades
+  from an inline SVG. Surfaces of revolution are generated from 2D profiles and
+  shaded with a procedural matcap. Falls back to the SVG without WebGL.
+- Page motion is CSS transforms driven by IntersectionObserver and a rAF scroll
+  listener. The anatomy section's steps are clickable and scroll to the matching
+  assembly state.
+- Secondary routes are code-split; the landing page ships ~100 KB gzipped JS.
+- All raster assets are WebP; product shots are cropped and capped at 560 px.
+- PDFs load only when a certificate preview is opened. The Google Map iframe
+  mounts only when scrolled near.
+- Every animation respects `prefers-reduced-motion`.
 
-## How can I deploy this project?
+## Theme
 
-Simply open [Lovable](https://lovable.dev/projects/f6ea6fdb-7999-4eee-ac4d-ae5e1fb0e23c) and click on Share -> Publish.
+Light and dark, toggled from the nav and persisted in `localStorage` under `theme`.
+An inline script in `index.html` applies the stored or OS preference before first
+paint. Tokens live in `src/index.css` (`:root` and `.dark`). Product photo tiles use
+`.plate`, which stays light in dark mode because the source photos have white
+backgrounds.
 
-## Can I connect a custom domain to my Lovable project?
+## Enquiry form
 
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+There is no backend. The form validates with Zod and opens a pre-filled
+WhatsApp chat or `mailto:` link. Swap `onSubmit` in `src/pages/Contact.tsx` for a
+fetch to a form service if server-side capture is needed later.

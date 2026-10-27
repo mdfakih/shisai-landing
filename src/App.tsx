@@ -1,29 +1,32 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Navigation from "./components/Navigation";
-import Footer from "./components/Footer";
-import ScrollToTop from "./components/ScrollToTop";
-import Home from "./pages/Home";
-import Products from "./pages/Products";
-import Certificates from "./pages/Certificates";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
-import NotFound from "./pages/NotFound";
+import { lazy, Suspense } from 'react';
+import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { Toaster } from '@/components/ui/toaster';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import Navigation from '@/components/layout/Navigation';
+import Footer from '@/components/layout/Footer';
+import WhatsAppFab from '@/components/layout/WhatsAppFab';
+import ScrollToTop from '@/components/ScrollToTop';
+import Home from '@/pages/Home';
 
-const queryClient = new QueryClient();
+// Secondary routes split out so the landing page ships the smallest bundle.
+const Products = lazy(() => import('@/pages/Products'));
+const Certificates = lazy(() => import('@/pages/Certificates'));
+const About = lazy(() => import('@/pages/About'));
+const Contact = lazy(() => import('@/pages/Contact'));
+const NotFound = lazy(() => import('@/pages/NotFound'));
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <ScrollToTop />
-        <Navigation />
-        <Routes>
+const RouteFallback = () => (
+  <div className="flex min-h-[60vh] items-center justify-center pt-[var(--nav-h)]" role="status" aria-live="polite">
+    <span className="eyebrow">Loading…</span>
+  </div>
+);
+
+const AppRoutes = () => {
+  const location = useLocation();
+  return (
+    <main key={location.pathname} className="page-enter">
+      <Suspense fallback={<RouteFallback />}>
+        <Routes location={location}>
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products />} />
           <Route path="/certificates" element={<Certificates />} />
@@ -31,10 +34,22 @@ const App = () => (
           <Route path="/contact" element={<Contact />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
-        <Footer />
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+      </Suspense>
+    </main>
+  );
+};
+
+const App = () => (
+  <TooltipProvider>
+    <Toaster />
+    <BrowserRouter>
+      <ScrollToTop />
+      <Navigation />
+      <AppRoutes />
+      <Footer />
+      <WhatsAppFab />
+    </BrowserRouter>
+  </TooltipProvider>
 );
 
 export default App;

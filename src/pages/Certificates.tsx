@@ -1,462 +1,169 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
-  FileText,
-  Download,
-  X,
-  Award,
-  Shield,
-  Eye,
-  ExternalLink,
-  Maximize2,
-} from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { Download, ExternalLink, Eye, FileCheck2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { PageIntro } from '@/components/layout/PageIntro';
+import { Reveal, RevealItem } from '@/components/motion/Reveal';
+import { SectionHeading } from '@/components/shared/SectionHeading';
+import { WhatsAppButton } from '@/components/shared/CtaButtons';
+import { Certificate, certificates, company } from '@/data/company';
+
+const pdfPreviewUrl = (file: string) => `${encodeURI(file)}#toolbar=0&navpanes=0&view=FitH`;
+
+/** Mobile browsers render PDF iframes poorly; open the file directly there. */
+const prefersNativeViewer = () =>
+  typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches;
+
+const documentation = [
+  ['Material test certificate', 'Grade and heat number for the raw material, on request with the order.'],
+  ['Dimensional report', 'Key dimensions against the agreed standard, for critical items.'],
+  ['Surface finish', 'Matt or mirror finish declared per item; Ra values on request.'],
+  ['Laser marking', 'Grade and lot marking on request for traceability through the line.'],
+];
 
 const Certificates = () => {
-  const [selectedCertificate, setSelectedCertificate] = useState<{
-    title: string;
-    file: string;
-    description: string;
-  } | null>(null);
-  const [loadingStates, setLoadingStates] = useState<{
-    [key: number]: boolean;
-  }>({});
-  const [errorStates, setErrorStates] = useState<{ [key: number]: boolean }>(
-    {},
-  );
-  const [iframeSources, setIframeSources] = useState<{ [key: number]: string }>(
-    {},
-  );
-  const [modalIframeSrc, setModalIframeSrc] = useState<string>('');
+  const [preview, setPreview] = useState<Certificate | null>(null);
 
-  const certificates = [
-    {
-      title: 'Udyam Registration Certificate',
-      description:
-        'Official MSME registration certificate validating our business credentials and compliance with government standards.',
-      file: '/certificates/AAA Print _ Udyam Registration Certificate (1) (2).pdf',
-      icon: Award,
-      color: 'from-blue-500 to-cyan-500',
-    },
-    {
-      title: 'Company Registration Certificate',
-      description:
-        'Official company registration documentation for Shisai Steel Industries, establishing our legal entity and operational authority.',
-      file: '/certificates/SHISAI STEEL INDUSTRIES (5) (2).pdf',
-      icon: Shield,
-      color: 'from-purple-500 to-pink-500',
-    },
-    {
-      title: 'ZED Certification',
-      description:
-        'Zero Defect Zero Effect certification demonstrating our commitment to quality manufacturing and environmental responsibility.',
-      file: '/certificates/Zed certificate (3) (2).pdf',
-      icon: Award,
-      color: 'from-green-500 to-emerald-500',
-    },
-    {
-      title: 'Trade License',
-      description:
-        'Authorized trade license from Znox Trademart validating our commercial operations and business legitimacy.',
-      file: '/certificates/znox trademart (2).pdf',
-      icon: FileText,
-      color: 'from-orange-500 to-red-500',
-    },
-    {
-      title: 'Tri Clover Trademark Certificate',
-      description:
-        'Official trademark registration certificate for Tri Clover brand, protecting our intellectual property and brand identity.',
-      file: '/certificates/tri clover trademark certificate (3).pdf',
-      icon: Award,
-      color: 'from-indigo-500 to-purple-500',
-    },
-  ];
-
-  // Keyboard support for modal
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && selectedCertificate) {
-        closePreview();
-      }
-    };
-
-    if (selectedCertificate) {
-      document.addEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'hidden'; // Prevent background scroll
+  const openPreview = (c: Certificate) => {
+    if (prefersNativeViewer()) {
+      window.open(c.file, '_blank', 'noopener,noreferrer');
+      return;
     }
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'unset';
-    };
-  }, [selectedCertificate]);
-
-  // Initialize loading states and setup iframe sources for mobile compatibility
-  useEffect(() => {
-    const initialLoadingStates: { [key: number]: boolean } = {};
-    certificates.forEach((_, index) => {
-      initialLoadingStates[index] = true;
-    });
-    setLoadingStates(initialLoadingStates);
-
-    // Delay setting iframe sources to prevent mobile Chrome issues
-    const timer = setTimeout(() => {
-      const sources: { [key: number]: string } = {};
-      certificates.forEach((cert, index) => {
-        sources[
-          index
-        ] = `${cert.file}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=50`;
-      });
-      setIframeSources(sources);
-    }, 100); // Small delay to ensure proper loading
-
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Run only once on mount
-
-  const handleDownload = (file: string, title: string) => {
-    const link = document.createElement('a');
-    link.href = file;
-    link.download = `${title}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const handlePreview = (cert: {
-    title: string;
-    file: string;
-    description: string;
-  }) => {
-    // Check if it's mobile/tablet (screen width < 1024px)
-    if (window.innerWidth < 1024) {
-      // Open in new tab for mobile/tablet
-      openInNewTab(cert.file);
-    } else {
-      // Show modal for desktop
-      setSelectedCertificate(cert);
-      // Set iframe source after a small delay to prevent mobile Chrome issues
-      setTimeout(() => {
-        setModalIframeSrc(
-          `${cert.file}#toolbar=1&navpanes=0&scrollbar=1&view=FitH`,
-        );
-      }, 100);
-    }
-  };
-
-  const closePreview = () => {
-    setSelectedCertificate(null);
-    setModalIframeSrc(''); // Clear iframe source when closing
-  };
-
-  const handleIframeLoad = (index: number) => {
-    setLoadingStates((prev) => ({ ...prev, [index]: false }));
-  };
-
-  const handleIframeError = (index: number) => {
-    setLoadingStates((prev) => ({ ...prev, [index]: false }));
-    setErrorStates((prev) => ({ ...prev, [index]: true }));
-  };
-
-  const openInNewTab = (file: string) => {
-    window.open(file, '_blank');
+    setPreview(c);
   };
 
   return (
-    <div className="min-h-screen pt-24 md:pt-32 pb-12 md:pb-20 px-4">
-      <div className="container mx-auto max-w-7xl">
-        {/* Header */}
-        <div className="text-center mb-10 md:mb-16 animate-fade-in">
-          <div className="inline-flex items-center justify-center w-14 h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-primary to-accent mb-4 md:mb-6 animate-scale-in">
-            <Shield className="h-7 w-7 md:h-8 md:w-8 text-white" />
-          </div>
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 md:mb-4 px-4">
-            Our Certifications
-          </h1>
-          <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-4 leading-relaxed">
-            Verified credentials and certifications that validate our commitment
-            to quality, compliance, and excellence in manufacturing
-          </p>
-        </div>
+    <>
+      <PageIntro
+        index="04"
+        eyebrow="Quality & compliance"
+        title={
+          <>
+            Public documents,
+            <br className="hidden sm:block" />{' '}
+            <span className="metal-text">open to inspection.</span>
+          </>
+        }
+        lead="Registrations, the ZED assessment and our Tri Clover® trademark, downloadable as issued. Order-specific documentation is listed below."
+      />
 
-        {/* Certificates Grid */}
-        <div className="grid md:grid-cols-2 gap-5 md:gap-8 mb-10 md:mb-16">
-          {certificates.map((cert, index) => (
-            <Card
-              key={index}
-              className="group relative overflow-hidden hover:shadow-2xl transition-all duration-500 md:hover:-translate-y-2 animate-scale-in border-2 hover:border-primary/50"
-              style={{ animationDelay: `${index * 0.15}s` }}
-            >
-              {/* Gradient Background Effect */}
-              <div
-                className={`absolute inset-0 bg-gradient-to-br ${cert.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500`}
-              />
-
-              <CardHeader className="relative pb-3 md:pb-6">
-                <div className="flex items-start justify-between mb-3 md:mb-4">
-                  <div
-                    className={`bg-gradient-to-br ${cert.color} p-2.5 md:p-3 rounded-lg md:rounded-xl shadow-lg transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}
-                  >
-                    <cert.icon className="h-5 w-5 md:h-6 md:w-6 text-white" />
+      <section className="py-16 md:py-24">
+        <div className="container">
+          <Reveal threshold={0.05} className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {certificates.map((c, i) => (
+              <RevealItem key={c.id} index={i}>
+                <article id={c.id} className="group flex h-full scroll-mt-28 flex-col rounded-lg border border-border bg-card transition-all duration-500 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_24px_50px_-30px_hsl(var(--primary)/0.45)]">
+                  <div className="corner-marks m-3 flex aspect-[16/10] flex-col justify-between bg-surface p-5">
+                    <div className="flex items-start justify-between">
+                      <span className="flex h-11 w-11 items-center justify-center rounded-md bg-card text-primary shadow-sm">
+                        <FileCheck2 className="h-5 w-5" />
+                      </span>
+                      <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                        Doc 0{i + 1} · PDF
+                      </span>
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-semibold tracking-tight text-foreground">{c.title}</h2>
+                      <p className="mt-1 text-xs text-muted-foreground">{c.issuer}</p>
+                    </div>
                   </div>
-                  <div
-                    className={`transition-all duration-300 md:opacity-0 md:translate-x-4 md:group-hover:opacity-100 md:group-hover:translate-x-0`}
-                  >
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
-                      Verified
-                    </span>
-                  </div>
-                </div>
-                <CardTitle className="text-lg md:text-xl text-foreground group-hover:text-primary transition-colors duration-300 leading-snug">
-                  {cert.title}
-                </CardTitle>
-              </CardHeader>
-
-              <CardContent className="relative space-y-3 md:space-y-4 pt-0">
-                <CardDescription className="text-sm md:text-base text-muted-foreground leading-relaxed">
-                  {cert.description}
-                </CardDescription>
-
-                {/* PDF Preview - Hidden on mobile/tablet, shown on desktop */}
-                <div className="relative group/preview hidden lg:block">
-                  <div className="relative h-64 bg-white rounded-lg border-2 border-border hover:border-primary/50 transition-all duration-300 overflow-hidden shadow-inner">
-                    {/* Loading State */}
-                    {loadingStates[index] !== false && (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-muted/50 backdrop-blur-sm z-10">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-3"></div>
-                        <span className="text-sm font-medium text-muted-foreground">
-                          Loading preview...
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Error State */}
-                    {errorStates[index] && (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-muted/80 backdrop-blur-sm z-10">
-                        <FileText className="h-12 w-12 text-muted-foreground mb-3" />
-                        <span className="text-sm font-medium text-muted-foreground mb-2">
-                          Preview unavailable
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          Click to view or download
-                        </span>
-                      </div>
-                    )}
-
-                    {/* PDF Embed - Desktop only */}
-                    <iframe
-                      src={iframeSources[index] || ''}
-                      className="w-full h-full border-0 pointer-events-none bg-white"
-                      title={`${cert.title} Preview`}
-                      onLoad={() => handleIframeLoad(index)}
-                      onError={() => handleIframeError(index)}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        border: 'none',
-                      }}
-                    />
-
-                    {/* Interactive Overlay */}
-                    <div
-                      className="absolute inset-0 bg-transparent hover:bg-primary/5 transition-all duration-300 cursor-pointer flex items-center justify-center opacity-0 hover:opacity-100"
-                      onClick={() => handlePreview(cert)}
+                  <p className="px-5 pt-2 text-sm leading-relaxed text-muted-foreground">{c.description}</p>
+                  <div className="mt-auto flex gap-2 p-5">
+                    <button
+                      type="button"
+                      onClick={() => openPreview(c)}
+                      className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-md bg-primary text-sm font-semibold text-white transition-colors hover:bg-primary-deep"
                     >
-                      <div className="bg-primary text-primary-foreground p-3 rounded-full shadow-lg transform scale-75 hover:scale-100 transition-transform duration-300">
-                        <Maximize2 className="h-5 w-5" />
-                      </div>
-                    </div>
-
-                    {/* Corner Actions - Desktop only */}
-                    <div className="flex absolute top-2 right-2 gap-2 opacity-0 group-hover/preview:opacity-100 transition-opacity duration-300">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openInNewTab(cert.file);
-                        }}
-                        className="bg-background/90 backdrop-blur-sm border border-border rounded-lg p-2 shadow-lg hover:bg-muted transition-colors duration-300"
-                        title="Open in new tab"
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDownload(cert.file, cert.title);
-                        }}
-                        className="bg-background/90 backdrop-blur-sm border border-border rounded-lg p-2 shadow-lg hover:bg-muted transition-colors duration-300"
-                        title="Download"
-                      >
-                        <Download className="h-4 w-4" />
-                      </button>
-                    </div>
+                      <Eye className="h-4 w-4" /> Preview
+                    </button>
+                    <a
+                      href={c.file}
+                      download
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border text-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                      aria-label={`Download ${c.title}`}
+                    >
+                      <Download className="h-4 w-4" />
+                    </a>
+                    <a
+                      href={c.file}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border text-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                      aria-label={`Open ${c.title} in a new tab`}
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
                   </div>
-                </div>
+                </article>
+              </RevealItem>
+            ))}
 
-                {/* Action Buttons */}
-                <div className="flex gap-2 md:gap-3 pt-1 md:pt-2">
-                  <button
-                    onClick={() => handlePreview(cert)}
-                    className="flex-1 flex items-center justify-center gap-1.5 md:gap-2 px-3 md:px-4 py-2.5 md:py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 active:scale-95 transition-all duration-300 md:hover:shadow-lg md:hover:scale-[1.02] font-medium text-sm md:text-base"
-                  >
-                    <Eye className="h-3.5 w-3.5 md:h-4 md:w-4" />
-                    <span className="hidden sm:inline">Full View</span>
-                    <span className="sm:hidden">View</span>
-                  </button>
-                  <button
-                    onClick={() => handleDownload(cert.file, cert.title)}
-                    className="flex-1 flex items-center justify-center gap-1.5 md:gap-2 px-3 md:px-4 py-2.5 md:py-3 bg-muted text-foreground rounded-lg hover:bg-muted/80 active:scale-95 transition-all duration-300 md:hover:shadow-lg md:hover:scale-[1.02] font-medium border border-border group/download text-sm md:text-base"
-                  >
-                    <Download className="h-3.5 w-3.5 md:h-4 md:w-4 group-hover/download:animate-bounce" />
-                    Download
-                  </button>
-                </div>
-              </CardContent>
-
-              {/* Decorative Corner */}
-              <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-primary/5 to-transparent rounded-bl-full transform translate-x-10 -translate-y-10 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-500" />
-            </Card>
-          ))}
-        </div>
-
-        {/* Trust Banner */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-accent text-primary-foreground rounded-xl md:rounded-2xl p-6 md:p-12 text-center animate-fade-in shadow-2xl">
-          {/* Animated Background Pattern */}
-          <div className="absolute inset-0 opacity-10">
-            <div
-              className="absolute inset-0"
-              style={{
-                backgroundImage:
-                  'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
-                backgroundSize: '40px 40px',
-              }}
-            />
-          </div>
-
-          <div className="relative z-10">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4">
-              Trusted & Certified
-            </h2>
-            <p className="text-sm md:text-base lg:text-lg opacity-95 max-w-3xl mx-auto mb-6 md:mb-8 leading-relaxed px-2">
-              At Shisai Steel Industries, we maintain the highest standards of
-              quality and compliance. Our certifications reflect our dedication
-              to excellence, regulatory adherence, and customer satisfaction.
-            </p>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mt-6 md:mt-10">
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg md:rounded-xl p-4 md:p-6 transform hover:scale-105 active:scale-95 transition-all duration-300 hover:bg-white/15">
-                <h3 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">
-                  15+
-                </h3>
-                <p className="text-xs md:text-sm opacity-90">
-                  Years of Excellence
-                </p>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg md:rounded-xl p-4 md:p-6 transform hover:scale-105 active:scale-95 transition-all duration-300 hover:bg-white/15">
-                <h3 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">
-                  100%
-                </h3>
-                <p className="text-xs md:text-sm opacity-90">
-                  Verified Credentials
-                </p>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg md:rounded-xl p-4 md:p-6 transform hover:scale-105 active:scale-95 transition-all duration-300 hover:bg-white/15">
-                <h3 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">
-                  ISO
-                </h3>
-                <p className="text-xs md:text-sm opacity-90">
-                  Quality Standards
-                </p>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg md:rounded-xl p-4 md:p-6 transform hover:scale-105 active:scale-95 transition-all duration-300 hover:bg-white/15">
-                <h3 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">
-                  ZED
-                </h3>
-                <p className="text-xs md:text-sm opacity-90">
-                  Certified Manufacturing
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Additional Info */}
-        <div className="mt-8 md:mt-12 text-center animate-fade-in px-4">
-          <p className="text-muted-foreground text-xs md:text-sm leading-relaxed">
-            All certificates are authentic and can be verified with the
-            respective issuing authorities. For verification inquiries, please
-            contact us.
-          </p>
-        </div>
-
-        {/* Certificate Preview Modal */}
-        {selectedCertificate && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-0 md:p-4 bg-black/80 backdrop-blur-sm animate-modal-fade-in">
-            <div className="relative w-full h-full md:max-w-6xl md:max-h-[90vh] md:h-auto bg-background md:rounded-2xl shadow-2xl overflow-hidden animate-modal-scale-in">
-              {/* Modal Header */}
-              <div className="flex items-center justify-between p-4 md:p-6 border-b border-border bg-muted/30">
-                <div className="flex-1 min-w-0 pr-4">
-                  <h3 className="text-lg md:text-xl font-semibold text-foreground truncate">
-                    {selectedCertificate.title}
-                  </h3>
-                  <p className="text-xs md:text-sm text-muted-foreground mt-1 line-clamp-2 md:line-clamp-none">
-                    {selectedCertificate.description}
+            {/* Trust card */}
+            <RevealItem index={certificates.length}>
+              <div className="navy-surface flex h-full flex-col justify-between rounded-lg p-6 text-white">
+                <div>
+                  <p className="eyebrow text-white/60">Verification</p>
+                  <h2 className="mt-3 text-xl font-semibold tracking-tight">Need a copy on letterhead, or a specific MTC?</h2>
+                  <p className="mt-3 text-sm leading-relaxed text-white/70">
+                    Tell us the order or product and we will send the matching documents. GSTIN {company.gst}.
                   </p>
                 </div>
-                <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
-                  <button
-                    onClick={() =>
-                      handleDownload(
-                        selectedCertificate.file,
-                        selectedCertificate.title,
-                      )
-                    }
-                    className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 active:scale-95 transition-all duration-300 md:hover:scale-105 font-medium text-sm md:text-base"
-                  >
-                    <Download className="h-3.5 w-3.5 md:h-4 md:w-4" />
-                    <span className="hidden sm:inline">Download</span>
-                  </button>
-                  <button
-                    onClick={closePreview}
-                    className="p-2 hover:bg-muted rounded-lg transition-colors duration-300 text-muted-foreground hover:text-foreground"
-                  >
-                    <X className="h-4 w-4 md:h-5 md:w-5" />
-                  </button>
-                </div>
+                <WhatsAppButton
+                  variant="outline"
+                  className="mt-6"
+                  message="Hello Shisai, please share documentation for:"
+                >
+                  Request documents
+                </WhatsAppButton>
               </div>
+            </RevealItem>
+          </Reveal>
+        </div>
+      </section>
 
-              {/* Modal Content */}
-              <div className="relative h-[calc(100vh-80px)] md:h-[calc(90vh-120px)] bg-white">
-                {/* Enhanced PDF Viewer - Mobile Chrome compatible */}
-                <iframe
-                  src={modalIframeSrc}
-                  className="w-full h-full border-0"
-                  title={selectedCertificate.title}
-                />
-              </div>
-
-              {/* Mobile-friendly close area - Only show if header close button is not easily accessible */}
-              <div className="md:hidden absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 pointer-events-none">
-                <div className="bg-background/90 backdrop-blur-sm border border-border rounded-full px-4 py-2 shadow-lg text-xs text-muted-foreground">
-                  Swipe down or tap × to close
-                </div>
-              </div>
-            </div>
-
-            {/* Click outside to close - Only on desktop */}
-            <div
-              className="hidden md:block absolute inset-0 -z-10"
-              onClick={closePreview}
-            />
+      <section className="border-t border-border bg-surface py-16 md:py-24">
+        <div className="container grid gap-12 lg:grid-cols-12">
+          <div className="lg:col-span-4">
+            <SectionHeading index="02" eyebrow="With every order" title="Documentation we provide on request." />
           </div>
-        )}
-      </div>
-    </div>
+          <Reveal threshold={0.05} className="lg:col-span-8">
+            <div className="border-b border-border">
+              {documentation.map(([t, d], i) => (
+                <RevealItem key={t} index={i} className="grid gap-2 border-t border-border py-5 sm:grid-cols-[4rem_1fr_2fr] sm:gap-6">
+                  <span className="font-mono text-xs text-muted-foreground">0{i + 1}</span>
+                  <h3 className="text-base font-semibold tracking-tight text-foreground">{t}</h3>
+                  <p className="text-sm leading-relaxed text-muted-foreground">{d}</p>
+                </RevealItem>
+              ))}
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      <Dialog open={!!preview} onOpenChange={(o) => !o && setPreview(null)}>
+        <DialogContent className="flex h-[90vh] max-w-5xl flex-col gap-0 p-0">
+          <DialogHeader className="border-b border-border px-6 py-4 text-left">
+            <DialogTitle className="text-lg font-semibold tracking-tight">{preview?.title}</DialogTitle>
+            <DialogDescription className="text-xs">{preview?.issuer}</DialogDescription>
+          </DialogHeader>
+          {preview && (
+            <iframe
+              key={preview.id}
+              src={pdfPreviewUrl(preview.file)}
+              title={preview.title}
+              className="h-full w-full flex-1 bg-surface"
+              loading="lazy"
+            />
+          )}
+          <div className="flex justify-end gap-2 border-t border-border px-6 py-3">
+            {preview && (
+              <a href={preview.file} download className="inline-flex h-9 items-center gap-2 rounded-md border border-border px-3 text-sm font-medium hover:border-primary/40 hover:text-primary">
+                <Download className="h-4 w-4" /> Download
+              </a>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
