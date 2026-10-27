@@ -17,6 +17,8 @@ interface TriClamp3DProps {
   pitch?: number;
   /** Show "drag to rotate" until the first interaction. */
   hint?: string;
+  /** Fill the parent box (parent must size it) instead of using the drawing aspect ratio. */
+  fill?: boolean;
   /** Dimension lines on the SVG placeholder. */
   showDims?: boolean;
   /** Live engineering callouts that track the 3D model. */
@@ -49,6 +51,7 @@ export function TriClamp3D({
   interactive = true,
   autoRotate = false,
   fit,
+  fill = false,
   yaw,
   pitch,
   hint,
@@ -111,6 +114,10 @@ export function TriClamp3D({
     sceneRef.current?.setState({ spread, lift, highlight, interactive, autoRotate });
   }, [spread, lift, highlight, interactive, autoRotate]);
 
+  useEffect(() => {
+    if (fit) sceneRef.current?.setFit(fit);
+  }, [fit?.halfW, fit?.halfH]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Pause when off-screen; refresh background on theme change.
   useEffect(() => {
     const el = wrapRef.current;
@@ -128,13 +135,13 @@ export function TriClamp3D({
   const fallbackExplode = Math.max(spread, lift);
 
   return (
-    <div ref={wrapRef} className={cn('relative select-none', className)}>
+    <div ref={wrapRef} className={cn('relative select-none', fill && 'h-full w-full', className)}>
       <TriClampAssembly
         explode={fallbackExplode}
         highlight={highlight}
         showDims={showDims && !ready}
         showShadow
-        className={cn('transition-opacity duration-700', ready && 'opacity-0')}
+        className={cn('transition-opacity duration-700', fill && 'absolute inset-0 h-full w-full', ready && 'opacity-0')}
       />
       <canvas
         ref={canvasRef}
@@ -154,7 +161,8 @@ export function TriClamp3D({
       {hint && ready && (
         <div
           className={cn(
-            'pointer-events-none absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1.5 font-mono text-[10.5px] uppercase tracking-[0.16em] text-muted-foreground backdrop-blur transition-opacity duration-500',
+            'pointer-events-none absolute left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full border border-border bg-card/80 px-3 py-1.5 font-mono text-[10.5px] uppercase tracking-[0.16em] text-muted-foreground backdrop-blur transition-opacity duration-500',
+            fill ? 'top-[calc(50%+min(34%,150px))]' : 'bottom-2',
             interacted ? 'opacity-0' : 'opacity-100',
           )}
         >

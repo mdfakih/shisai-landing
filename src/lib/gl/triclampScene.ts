@@ -80,6 +80,8 @@ export class TriClampScene {
   private matcap: WebGLTexture;
   private state: SceneState;
   private fit: { halfW: number; halfH: number };
+  private fitTarget: { halfW: number; halfH: number };
+  private aspect = 1;
   private baseYaw: number;
   private basePitch: number;
   private userYaw = 0;
@@ -119,6 +121,7 @@ export class TriClampScene {
     };
     this.current = { spread: this.state.spread, lift: this.state.lift };
     this.fit = opts.fit ?? { halfW: 170, halfH: 95 };
+    this.fitTarget = { ...this.fit };
     this.baseYaw = opts.yaw ?? 1.0;
     this.basePitch = opts.pitch ?? 0.28;
     this.onInteract = opts.onInteract;
@@ -153,6 +156,13 @@ export class TriClampScene {
   setVisible(v: boolean) {
     this.visible = v;
     if (v) this.wake();
+  }
+
+  /** Change the framed extents; the camera eases to the new distance. */
+  setFit(fit: { halfW: number; halfH: number }) {
+    if (fit.halfW === this.fitTarget.halfW && fit.halfH === this.fitTarget.halfH) return;
+    this.fitTarget = { ...fit };
+    this.wake();
   }
 
   setBackground(rgb: [number, number, number]) {
@@ -231,11 +241,15 @@ export class TriClampScene {
       this.canvas.height = h;
     }
     this.gl.viewport(0, 0, w, h);
-    const aspect = w / h;
-    const t = Math.tan(FOV / 2);
-    this.dist = Math.max(this.fit.halfW / (t * aspect), this.fit.halfH / t) * 1.08;
-    this.proj = perspective(FOV, aspect, 10, this.dist + 600);
+    this.aspect = w / h;
+    this.updateProjection();
     this.wake();
+  }
+
+  private updateProjection() {
+    const t = Math.tan(FOV / 2);
+    this.dist = Math.max(this.fit.halfW / (t * this.aspect), this.fit.halfH / t) * 1.08;
+    this.proj = perspective(FOV, this.aspect, 10, this.dist + 600);
   }
 
   /* ---------- interaction ---------- */
@@ -334,6 +348,19 @@ export class TriClampScene {
     this.current.lift = lerp(this.current.lift, s.lift, ease);
     if (Math.abs(this.current.spread - s.spread) > 0.002 || Math.abs(this.current.lift - s.lift) > 0.002) busy = true;
     else this.current = { spread: s.spread, lift: s.lift };
+
+    // Camera framing eases toward the requested extents.
+    if (Math.abs(this.fit.halfW - this.fitTarget.halfW) > 0.2 || Math.abs(this.fit.halfH - this.fitTarget.halfH) > 0.2) {
+      this.fit = {
+        halfW: lerp(this.fit.halfW, this.fitTarget.halfW, 0.1),
+        halfH: lerp(this.fit.halfH, this.fitTarget.halfH, 0.1),
+      };
+      this.updateProjection();
+      busy = true;
+    } else if (this.fit !== this.fitTarget) {
+      this.fit = this.fitTarget;
+      this.updateProjection();
+    }
 
     // Highlight fades.
     for (const m of this.meshes) {
