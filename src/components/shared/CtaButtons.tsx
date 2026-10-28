@@ -14,13 +14,14 @@ export function PrimaryLink({
   to,
   className,
   children,
-}: BtnProps & { to: string }) {
+  variant = 'solid',
+}: BtnProps & { to: string; variant?: 'solid' | 'inverse' }) {
   return (
     <Link
       to={to}
       className={cn(
         base,
-        'btn-primary sheen',
+        variant === 'solid' ? 'btn-primary sheen' : 'btn-inverse',
         className,
       )}
     >

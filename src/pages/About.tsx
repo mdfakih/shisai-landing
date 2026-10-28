@@ -221,7 +221,7 @@ const About = () => {
             />
           </div>
           <Reveal delay={150} className="lg:col-span-4 lg:justify-self-end">
-            <PrimaryLink to="/contact" className="bg-white text-primary hover:bg-white/90 hover:text-primary-deep">
+            <PrimaryLink to="/contact" variant="inverse">
               Work with us
             </PrimaryLink>
           </Reveal>

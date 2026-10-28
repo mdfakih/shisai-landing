@@ -45,6 +45,15 @@ const Navigation = () => {
     };
   }, [open]);
 
+  // Tapping the page you're already on leaves the pathname unchanged, so the
+  // close-on-route-change effect never fires. Close here and go back to top.
+  const onMobileNav = (path: string) => {
+    setOpen(false);
+    if (path === location.pathname) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
   return (
     <>
       <header
@@ -137,9 +146,8 @@ const Navigation = () => {
           <NavLink
             to="/"
             end
-            className={({ isActive }) =>
-              cn("mobile-link", isActive && "text-primary")
-            }
+            className="mobile-link"
+            onClick={() => onMobileNav("/")}
             style={{ transitionDelay: open ? "60ms" : "0ms" }}
           >
             <span className="eyebrow w-8">00</span>Home
@@ -148,9 +156,8 @@ const Navigation = () => {
             <NavLink
               key={link.path}
               to={link.path}
-              className={({ isActive }) =>
-                cn("mobile-link", isActive && "text-primary")
-              }
+              className="mobile-link"
+              onClick={() => onMobileNav(link.path)}
               style={{ transitionDelay: open ? `${120 + i * 60}ms` : "0ms" }}
             >
               <span className="eyebrow w-8">0{i + 1}</span>
@@ -180,6 +187,18 @@ const Navigation = () => {
           transition: opacity .5s var(--ease-out-expo), transform .6s var(--ease-out-expo), color .3s;
         }
         #mobile-menu.visible .mobile-link { opacity: 1; transform: none; }
+        /* Current page. NavLink sets aria-current; plain utilities can't beat
+           the unlayered .mobile-link color above, so style it here. */
+        .mobile-link[aria-current="page"] {
+          color: hsl(var(--primary-bright));
+          border-bottom-color: hsl(var(--primary-bright) / 0.5);
+        }
+        .mobile-link[aria-current="page"] .eyebrow { color: hsl(var(--primary-bright)); }
+        .mobile-link[aria-current="page"]::after {
+          content: ""; margin-left: auto; width: 0.5rem; height: 0.5rem; border-radius: 9999px;
+          background: hsl(var(--primary-bright));
+          box-shadow: 0 0 0 4px hsl(var(--primary-bright) / 0.18);
+        }
       `}</style>
     </>
   );
