@@ -97,10 +97,12 @@ const Navigation = () => {
             </a>
             <Link
               to="/contact"
-              className="sheen group inline-flex h-10 items-center gap-1.5 rounded-md bg-primary px-4 text-[13px] font-semibold text-white transition-all duration-300 hover:bg-primary-deep"
+              className="btn btn-primary sheen group h-10 gap-2.5 pl-4 pr-1.5 text-[13px]"
             >
               Request a quote
-              <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              <span className="btn-chip h-7 w-7">
+                <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </span>
             </Link>
           </div>
 

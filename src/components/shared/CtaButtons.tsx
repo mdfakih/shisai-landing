@@ -3,8 +3,7 @@ import { Link } from 'react-router-dom';
 import { company, whatsappLink } from '@/data/company';
 import { cn } from '@/lib/utils';
 
-const base =
-  'group inline-flex h-12 items-center justify-center gap-2 rounded-md px-5 text-sm font-semibold transition-all duration-300 focus-visible:outline-none';
+const base = 'btn group h-12 pl-6 pr-2.5 text-sm focus-visible:outline-none';
 
 interface BtnProps {
   className?: string;
@@ -21,12 +20,14 @@ export function PrimaryLink({
       to={to}
       className={cn(
         base,
-        'sheen bg-primary text-primary-foreground shadow-[0_8px_24px_-10px_hsl(var(--primary)/0.6)] hover:-translate-y-0.5 hover:bg-primary-deep hover:shadow-[0_14px_30px_-10px_hsl(var(--primary)/0.6)]',
+        'btn-primary sheen',
         className,
       )}
     >
       {children}
-      <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+      <span className="btn-chip">
+        <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+      </span>
     </Link>
   );
 }
@@ -37,11 +38,14 @@ export function GhostLink({ to, className, children }: BtnProps & { to: string }
       to={to}
       className={cn(
         base,
-        'border border-border bg-card/70 text-foreground backdrop-blur hover:border-primary/40 hover:bg-card',
+        'btn-ghost',
         className,
       )}
     >
       {children}
+      <span className="btn-chip">
+        <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+      </span>
     </Link>
   );
 }
@@ -60,8 +64,8 @@ export function WhatsAppButton({
       className={cn(
         base,
         variant === 'solid'
-          ? 'bg-[#25D366] text-white hover:-translate-y-0.5 hover:brightness-95'
-          : 'border border-white/25 text-white hover:bg-white/10',
+          ? 'bg-[#25D366] px-6 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_10px_24px_-12px_rgba(37,211,102,0.8)] hover:-translate-y-0.5 hover:brightness-105'
+          : 'border border-white/25 px-6 text-white hover:-translate-y-0.5 hover:border-white/50 hover:bg-white/10',
         className,
       )}
     >
@@ -78,8 +82,8 @@ export function CallButton({ className, variant = 'outline' }: BtnProps & { vari
       className={cn(
         base,
         variant === 'solid'
-          ? 'bg-white text-primary hover:-translate-y-0.5'
-          : 'border border-white/25 text-white hover:bg-white/10',
+          ? 'bg-white px-6 text-primary hover:-translate-y-0.5'
+          : 'border border-white/25 px-6 text-white hover:-translate-y-0.5 hover:border-white/50 hover:bg-white/10',
         className,
       )}
     >

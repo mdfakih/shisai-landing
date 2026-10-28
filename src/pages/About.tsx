@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { Cpu, Flame, Gauge, Hand, Layers, RotateCw, ScanLine, Scissors, Sparkles } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { PageIntro } from '@/components/layout/PageIntro';
 import { Reveal, RevealItem } from '@/components/motion/Reveal';
 import { SectionHeading } from '@/components/shared/SectionHeading';
 import { PrimaryLink } from '@/components/shared/CtaButtons';
-import { company, machinery } from '@/data/company';
+import { PhotoBackdrop } from '@/components/shared/PhotoBackdrop';
+import { brands, company, machinery } from '@/data/company';
 import { cn } from '@/lib/utils';
 
 import teamImg from '@/assets/aboutUs/wirn13mf-1000x1000.webp';
@@ -29,13 +31,16 @@ const album = [
   { src: loc3, alt: 'Company premises' },
 ];
 
+/** One icon per brochure machine, in list order. */
+const machineIcons = [Cpu, Layers, Gauge, RotateCw, Flame, Sparkles, ScanLine, Scissors, Hand];
+
 const facts = [
   ['Founded', String(company.foundedYear)],
   ['Location', 'Vasai East, Palghar, Maharashtra'],
   ['Nature of business', 'Manufacturer · Wholesaler · Trader'],
   ['Leadership', `${company.ceo}, CEO`],
   ['GSTIN', company.gst],
-  ['Brand', 'Tri Clover® (registered trademark)'],
+  ['Brands', brands.join(' · ')],
 ];
 
 const values = [
@@ -150,13 +155,30 @@ const About = () => {
             title="The floor that makes the parts."
             lead="Pressing, turning, welding, polishing and marking in one unit, so lead times and tolerances stay in our hands."
           />
-          <Reveal threshold={0.1} className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-4">
-            {machinery.map((m, i) => (
-              <RevealItem key={m} index={i} className="corner-marks flex aspect-[4/3] flex-col justify-between bg-card p-5 transition-colors hover:bg-primary/[0.03]">
-                <span className="font-mono text-xs text-muted-foreground">{String(i + 1).padStart(2, '0')}</span>
-                <span className="text-base font-semibold tracking-tight text-foreground sm:text-lg">{m}</span>
-              </RevealItem>
-            ))}
+          <Reveal threshold={0.1} className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {machinery.map((m, i) => {
+              const Icon = machineIcons[i] ?? Cpu;
+              return (
+                <RevealItem
+                  key={m.name}
+                  index={i}
+                  className="corner-marks group flex flex-col bg-card p-5 transition-colors hover:bg-primary/[0.03] sm:p-6"
+                >
+                  <div className="flex items-start justify-between">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/[0.08] text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                      <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
+                    </span>
+                    <span className="font-mono text-xs text-muted-foreground">{String(i + 1).padStart(2, '0')}</span>
+                  </div>
+                  <h3 className="mt-6 text-lg font-semibold tracking-tight text-foreground">{m.name}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{m.purpose}</p>
+                  <p className="mt-4 border-t border-border pt-3 text-[13px] leading-snug text-foreground/80">
+                    <span className="eyebrow mr-2 text-primary">Why</span>
+                    {m.benefit}
+                  </p>
+                </RevealItem>
+              );
+            })}
           </Reveal>
         </div>
       </section>
@@ -186,8 +208,9 @@ const About = () => {
       </section>
 
       {/* Vision */}
-      <section className="navy-surface py-20 text-white md:py-28">
-        <div className="container grid gap-10 lg:grid-cols-12 lg:items-end">
+      <section className="navy-surface relative overflow-hidden py-20 text-white md:py-28">
+        <PhotoBackdrop src={loc3} />
+        <div className="container relative grid gap-10 lg:grid-cols-12 lg:items-end">
           <div className="lg:col-span-8">
             <SectionHeading
               tone="dark"

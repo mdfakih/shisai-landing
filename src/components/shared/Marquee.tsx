@@ -10,7 +10,10 @@ interface MarqueeProps {
   separator?: ReactNode;
 }
 
-/** CSS-only infinite ticker. Content duplicated once for the loop. */
+/**
+ * CSS-only infinite ticker. Content duplicated once for the loop; the
+ * duplicate is tagged so reduced-motion CSS can drop it and wrap the rest.
+ */
 export function Marquee({
   items,
   duration = 40,
@@ -28,7 +31,10 @@ export function Marquee({
     >
       <div className={cn('marquee', reverse && 'marquee-reverse')}>
         {track.map((item, i) => (
-          <span key={i} className={cn('flex shrink-0 items-center', itemClassName)}>
+          <span
+            key={i}
+            className={cn('flex shrink-0 items-center', i >= items.length && 'marquee-dup', itemClassName)}
+          >
             {item}
             {separator ?? <span className="mx-8 h-1 w-1 rounded-full bg-current opacity-40" />}
           </span>

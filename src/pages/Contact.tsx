@@ -248,7 +248,7 @@ const Contact = () => {
                 </div>
                 <button
                   type="submit"
-                  className="sheen inline-flex h-12 items-center justify-center gap-2 rounded-md bg-primary px-6 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-deep"
+                  className="btn btn-primary sheen h-12 px-6 text-sm"
                 >
                   <Send className="h-4 w-4" />
                   Send enquiry
@@ -268,8 +268,11 @@ const Contact = () => {
                 <li className="flex gap-3">
                   <Phone className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                   <div>
-                    <a href={`tel:${company.phone.e164}`} className="tabular text-base font-semibold text-foreground hover:text-primary">
+                    <a href={`tel:${company.phone.e164}`} className="tabular block text-base font-semibold text-foreground hover:text-primary">
                       {company.phone.display}
+                    </a>
+                    <a href={`tel:${company.phoneAlt.e164}`} className="tabular block text-base font-semibold text-foreground hover:text-primary">
+                      {company.phoneAlt.display}
                     </a>
                     <p className="text-muted-foreground">Call or WhatsApp</p>
                   </div>
@@ -286,13 +289,16 @@ const Contact = () => {
                 </li>
                 <li className="flex gap-3">
                   <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                  <a href={company.address.mapsUrl} target="_blank" rel="noopener noreferrer" className="leading-relaxed text-foreground/85 hover:text-primary">
-                    {company.address.lines.map((l) => (
-                      <span key={l} className="block">
-                        {l}
-                      </span>
-                    ))}
-                  </a>
+                  <div>
+                    <a href={company.address.mapsUrl} target="_blank" rel="noopener noreferrer" className="leading-relaxed text-foreground/85 hover:text-primary">
+                      {company.address.lines.map((l) => (
+                        <span key={l} className="block">
+                          {l}
+                        </span>
+                      ))}
+                    </a>
+                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">Also at {company.address.alsoAt}</p>
+                  </div>
                 </li>
               </ul>
             </Reveal>

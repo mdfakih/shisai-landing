@@ -84,7 +84,7 @@ const Certificates = () => {
                       <button
                         type="button"
                         onClick={() => setOpen(c)}
-                        className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-md bg-primary text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-deep"
+                        className="btn btn-primary h-10 flex-1 text-sm"
                       >
                         <ZoomIn className="h-4 w-4" /> Read
                       </button>
@@ -174,7 +174,7 @@ const Certificates = () => {
               <a
                 href={open.file}
                 download
-                className="inline-flex h-10 items-center gap-2 rounded-md bg-primary px-3 text-sm font-semibold text-primary-foreground hover:bg-primary-deep"
+                className="btn btn-primary h-10 px-4 text-sm"
               >
                 <Download className="h-4 w-4" /> Download
               </a>

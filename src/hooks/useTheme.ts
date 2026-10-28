@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 export type Theme = 'light' | 'dark';
 
 const STORAGE_KEY = 'theme';
-const META_COLORS: Record<Theme, string> = { light: '#2f2f78', dark: '#0b0d1a' };
+const META_COLORS: Record<Theme, string> = { light: '#232b76', dark: '#0a0c1a' };
 
 const readTheme = (): Theme => {
   if (typeof document === 'undefined') return 'light';

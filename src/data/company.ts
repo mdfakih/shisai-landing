@@ -5,8 +5,9 @@
 export const company = {
   name: 'Shisai Steel Industries',
   shortName: 'Shisai',
-  tagline: 'Hygienic stainless steel fittings, engineered to specification.',
-  foundedYear: 2009,
+  tagline: 'Hygienic stainless steel fittings. Connecting you to quality.',
+  /** Brochure: "Since 2001". */
+  foundedYear: 2001,
   gst: '27DBFPP0939E1ZM',
   ceo: 'Mr. Raju Purohit',
   address: {
@@ -17,11 +18,14 @@ export const company = {
       'India',
     ],
     short: 'Vasai East, Palghar, Maharashtra',
+    /** Second works, from the brochure catalogue pages. */
+    alsoAt: 'Unit 28, 29 & 30, Alfa Industrial Estate, Kherpada, Waliv, Vasai East 401208',
     mapsUrl: 'https://www.google.co.in/maps/dir//19.42259000,72.85411000',
     embedUrl:
       'https://www.google.com/maps?q=19.42259,72.85411&hl=en&z=15&output=embed',
   },
   phone: { display: '+91 99922 52256', e164: '+919992252256' },
+  phoneAlt: { display: '+91 90827 80156', e164: '+919082780156' },
   whatsapp: '919992252256',
   emails: ['triclover.india@gmail.com', 'shisaisteel@gmail.com'],
   hours: [
@@ -102,16 +106,81 @@ export const industries: readonly Industry[] = [
   },
 ];
 
-export const machinery = [
-  'CNC Machine',
-  'Power Press',
-  'Hydraulic Press',
-  'Lathe',
-  'Welding Unit',
-  'Polishing Machine',
-  'Laser Marking',
-  'Bandsaw',
-] as const;
+export interface Machine {
+  name: string;
+  /** What it does on the floor. */
+  purpose: string;
+  /** What that buys the customer. */
+  benefit: string;
+}
+
+/** Plant list and wording from the brochure's machinery page. */
+export const machinery: readonly Machine[] = [
+  {
+    name: 'CNC Machine',
+    purpose: 'High-precision cutting and shaping of stainless components.',
+    benefit: 'Dimensional accuracy, repeatable on every batch.',
+  },
+  {
+    name: 'Power Press',
+    purpose: 'Cutting, bending and forming of ferrules and clamp halves.',
+    benefit: 'High-volume output with consistent geometry.',
+  },
+  {
+    name: 'Hydraulic Press',
+    purpose: 'Moulding and forming under controlled pressure.',
+    benefit: 'Uniform wall thickness on complex shapes.',
+  },
+  {
+    name: 'Lathe',
+    purpose: 'Turning and facing of cylindrical parts.',
+    benefit: 'Smooth, true sealing faces.',
+  },
+  {
+    name: 'Welding Unit',
+    purpose: 'Joining tube and ferrule into tees, bends and spools.',
+    benefit: 'Strong, leak-proof joints fit for pharma lines.',
+  },
+  {
+    name: 'Polishing Machine',
+    purpose: 'Internal and external surface finishing.',
+    benefit: 'Mirror or matt finish to specification.',
+  },
+  {
+    name: 'Laser Marking',
+    purpose: 'Permanent engraving of grade, size and heat number.',
+    benefit: 'Traceability that survives CIP and SIP.',
+  },
+  {
+    name: 'Bandsaw',
+    purpose: 'Cutting raw tube and bar to length.',
+    benefit: 'Clean, square starts for every part.',
+  },
+  {
+    name: 'Hand Press',
+    purpose: 'Manual pressing and shaping in small runs.',
+    benefit: 'Custom orders and short batches without tooling delay.',
+  },
+];
+
+/** Registered brands shown in the brochure. */
+export const brands = ['Tri Clover®', 'Tri Clamp®', 'Znox®'] as const;
+
+export interface Assessment {
+  label: string;
+  detail: string;
+}
+
+/**
+ * Badges printed on the brochure cover. verify: ISO 9001 and GMP
+ * certificates are not on file here; add the PDFs to `certificates`
+ * once the client supplies them.
+ */
+export const assessments: readonly Assessment[] = [
+  { label: 'MSME ZED', detail: 'Bronze' },
+  { label: 'ISO 9001', detail: 'Certified' },
+  { label: 'GMP', detail: 'Certified' },
+];
 
 export interface Certificate {
   id: string;

@@ -1,5 +1,4 @@
-import { Geometry } from './geometry';
-import { makeMatcap } from './matcap';
+import { compileProgram, createContext, deleteVao, drawVao, Program, uploadGeometry, uploadMatcap, Vao } from './glCore';
 import { clamp01, compose, lerp, Mat4, multiply, perspective, rotationX, rotationY, translation } from './math';
 import { buildParts, GroupId, LIFT_MM, PartId, PartSpec, SPREAD_MM } from './parts';
 
@@ -42,28 +41,9 @@ export interface SceneOptions extends Partial<SceneState> {
   onInteract?: () => void;
 }
 
-const VERT = `
-attribute vec3 aPos; attribute vec3 aNor;
-uniform mat4 uProj; uniform mat4 uMV;
-varying vec3 vN;
-void main(){ vN = mat3(uMV) * aNor; gl_Position = uProj * uMV * vec4(aPos, 1.0); }`;
-
-const FRAG = `
-precision mediump float;
-uniform sampler2D uMatcap; uniform vec3 uTint; uniform float uContrast; uniform vec3 uBg; uniform float uFade;
-varying vec3 vN;
-void main(){
-  vec3 n = normalize(vN);
-  vec2 uv = n.xy * 0.5 + 0.5;
-  vec3 m = texture2D(uMatcap, uv).rgb;
-  vec3 c = mix(vec3(0.92), m, uContrast) * uTint;
-  c = mix(c, uBg, uFade);
-  gl_FragColor = vec4(c, 1.0);
-}`;
-
 interface Mesh {
   spec: PartSpec;
-  vao: { pos: WebGLBuffer; nor: WebGLBuffer; idx: WebGLBuffer; count: number };
+  vao: Vao;
   fade: number;
 }
 
@@ -73,9 +53,7 @@ const FOV = (26 * Math.PI) / 180;
 /** Self-contained WebGL viewer for the tri-clamp joint. ~8 KB, no deps. */
 export class TriClampScene {
   private gl: WebGLRenderingContext;
-  private prog: WebGLProgram;
-  private loc: Record<string, WebGLUniformLocation | null>;
-  private attr: { pos: number; nor: number };
+  private program: Program;
   private meshes: Mesh[];
   private matcap: WebGLTexture;
   private state: SceneState;
@@ -109,8 +87,7 @@ export class TriClampScene {
     private canvas: HTMLCanvasElement,
     opts: SceneOptions = {},
   ) {
-    const gl = canvas.getContext('webgl', { antialias: true, alpha: true, premultipliedAlpha: true, powerPreference: 'low-power' });
-    if (!gl) throw new Error('WebGL unavailable');
+    const gl = createContext(canvas);
     this.gl = gl;
     this.state = {
       spread: opts.spread ?? 0,
@@ -127,13 +104,9 @@ export class TriClampScene {
     this.onInteract = opts.onInteract;
     this.onFrame = opts.onFrame;
 
-    this.prog = this.compile();
-    this.attr = { pos: gl.getAttribLocation(this.prog, 'aPos'), nor: gl.getAttribLocation(this.prog, 'aNor') };
-    this.loc = Object.fromEntries(
-      ['uProj', 'uMV', 'uMatcap', 'uTint', 'uContrast', 'uBg', 'uFade'].map((n) => [n, gl.getUniformLocation(this.prog, n)]),
-    );
-    this.meshes = buildParts().map((spec) => ({ spec, vao: this.upload(spec.geometry), fade: 0 }));
-    this.matcap = this.uploadMatcap();
+    this.program = compileProgram(gl);
+    this.meshes = buildParts().map((spec) => ({ spec, vao: uploadGeometry(gl, spec.geometry), fade: 0 }));
+    this.matcap = uploadMatcap(gl);
 
     gl.enable(gl.DEPTH_TEST);
     gl.clearColor(0, 0, 0, 0);
@@ -175,62 +148,12 @@ export class TriClampScene {
     if (this.frame) cancelAnimationFrame(this.frame);
     this.ro?.disconnect();
     const gl = this.gl;
-    this.meshes.forEach((m) => {
-      gl.deleteBuffer(m.vao.pos);
-      gl.deleteBuffer(m.vao.nor);
-      gl.deleteBuffer(m.vao.idx);
-    });
+    this.meshes.forEach((m) => deleteVao(gl, m.vao));
     gl.deleteTexture(this.matcap);
-    gl.deleteProgram(this.prog);
+    gl.deleteProgram(this.program.prog);
   }
 
   /* ---------- setup ---------- */
-
-  private compile(): WebGLProgram {
-    const gl = this.gl;
-    const sh = (type: number, src: string) => {
-      const s = gl.createShader(type)!;
-      gl.shaderSource(s, src);
-      gl.compileShader(s);
-      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s) || 'shader');
-      return s;
-    };
-    const p = gl.createProgram()!;
-    gl.attachShader(p, sh(gl.VERTEX_SHADER, VERT));
-    gl.attachShader(p, sh(gl.FRAGMENT_SHADER, FRAG));
-    gl.linkProgram(p);
-    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p) || 'link');
-    return p;
-  }
-
-  private upload(g: Geometry) {
-    const gl = this.gl;
-    const buf = (target: number, data: BufferSource) => {
-      const b = gl.createBuffer()!;
-      gl.bindBuffer(target, b);
-      gl.bufferData(target, data, gl.STATIC_DRAW);
-      return b;
-    };
-    return {
-      pos: buf(gl.ARRAY_BUFFER, g.positions),
-      nor: buf(gl.ARRAY_BUFFER, g.normals),
-      idx: buf(gl.ELEMENT_ARRAY_BUFFER, g.indices),
-      count: g.indices.length,
-    };
-  }
-
-  private uploadMatcap(): WebGLTexture {
-    const gl = this.gl;
-    const tex = gl.createTexture()!;
-    gl.bindTexture(gl.TEXTURE_2D, tex);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, makeMatcap());
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    return tex;
-  }
 
   private resize() {
     const dpr = Math.min(window.devicePixelRatio || 1, DPR_CAP);
@@ -391,13 +314,14 @@ export class TriClampScene {
 
   private draw(yaw: number, pitch: number) {
     const gl = this.gl;
+    const p = this.program;
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gl.useProgram(this.prog);
+    gl.useProgram(p.prog);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, this.matcap);
-    gl.uniform1i(this.loc.uMatcap, 0);
-    gl.uniformMatrix4fv(this.loc.uProj, false, this.proj);
-    gl.uniform3fv(this.loc.uBg, this.bg);
+    gl.uniform1i(p.loc.uMatcap, 0);
+    gl.uniformMatrix4fv(p.loc.uProj, false, this.proj);
+    gl.uniform3fv(p.loc.uBg, this.bg);
 
     const view = compose(translation(0, 0, -this.dist), rotationX(pitch), rotationY(yaw));
     const groups: Partial<Record<GroupId, Mat4>> = {};
@@ -405,19 +329,11 @@ export class TriClampScene {
 
     for (const m of this.meshes) {
       const mv = multiply(groupOf(m.spec.group), m.spec.local);
-      gl.uniformMatrix4fv(this.loc.uMV, false, mv);
-      gl.uniform3fv(this.loc.uTint, m.spec.tint);
-      gl.uniform1f(this.loc.uContrast, m.spec.contrast);
-      gl.uniform1f(this.loc.uFade, m.fade);
-
-      gl.bindBuffer(gl.ARRAY_BUFFER, m.vao.pos);
-      gl.enableVertexAttribArray(this.attr.pos);
-      gl.vertexAttribPointer(this.attr.pos, 3, gl.FLOAT, false, 0, 0);
-      gl.bindBuffer(gl.ARRAY_BUFFER, m.vao.nor);
-      gl.enableVertexAttribArray(this.attr.nor);
-      gl.vertexAttribPointer(this.attr.nor, 3, gl.FLOAT, false, 0, 0);
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, m.vao.idx);
-      gl.drawElements(gl.TRIANGLES, m.vao.count, gl.UNSIGNED_SHORT, 0);
+      gl.uniformMatrix4fv(p.loc.uMV, false, mv);
+      gl.uniform3fv(p.loc.uTint, m.spec.tint);
+      gl.uniform1f(p.loc.uContrast, m.spec.contrast);
+      gl.uniform1f(p.loc.uFade, m.fade);
+      drawVao(gl, p, m.vao);
     }
 
     if (this.onFrame) {

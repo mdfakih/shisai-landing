@@ -1,8 +1,9 @@
-import { useRef, useState } from 'react';
-import { ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { ArrowUpRight, Box, ChevronLeft, ChevronRight, Image as ImageIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import ImageCarousel from '@/components/ImageCarousel';
+import { ProductViewer3D } from '@/components/products/ProductViewer3D';
 import { WhatsAppButton } from '@/components/shared/CtaButtons';
 import { ProductCategory } from '@/data/products';
 import { cn } from '@/lib/utils';
@@ -16,6 +17,12 @@ interface ProductDialogProps {
 }
 
 const SWIPE_PX = 56;
+type View = 'photo' | '3d';
+const VIEWS: Array<{ id: View; label: string; Icon: typeof Box }> = [
+  { id: 'photo', label: 'Photos', Icon: ImageIcon },
+  { id: '3d', label: '3D model', Icon: Box },
+];
+const FRAME = 'aspect-auto h-[30dvh] min-h-[168px] sm:h-auto sm:aspect-square';
 
 /**
  * Product detail. On phones it is a full-height sheet: image capped to the
@@ -24,8 +31,13 @@ const SWIPE_PX = 56;
  */
 export function ProductDialog({ category, index, open, onOpenChange, onStep }: ProductDialogProps) {
   const [dir, setDir] = useState<1 | -1>(1);
+  const [view, setView] = useState<View>('photo');
   const touch = useRef<{ x: number; y: number } | null>(null);
   const product = category?.products[index];
+  // Back to photos whenever the sheet is reopened.
+  useEffect(() => {
+    if (open) setView('photo');
+  }, [open]);
   if (!category || !product) return null;
   const count = category.products.length;
   const quoteMsg = `Hello Shisai, please quote: ${product.name} (${category.name}). Size / grade / finish / qty:`;
@@ -62,13 +74,29 @@ export function ProductDialog({ category, index, open, onOpenChange, onStep }: P
         <div className="grid min-h-0 flex-1 grid-rows-[auto_1fr] md:grid-cols-2 md:grid-rows-1">
           {/* Image */}
           <div className="border-b border-border bg-surface px-4 pb-2 pt-3 sm:p-6 md:border-b-0 md:border-r md:p-7">
-            <ImageCarousel
-              key={product.name}
-              images={product.images}
-              productName={product.name}
-              frameClassName="aspect-auto h-[30dvh] min-h-[168px] sm:h-auto sm:aspect-square"
-              onOverscroll={step}
-            />
+            {view === 'photo' ? (
+              <ImageCarousel key={product.name} images={product.images} productName={product.name} frameClassName={FRAME} onOverscroll={step} />
+            ) : (
+              <ProductViewer3D categoryId={category.id} productName={product.name} className={FRAME} />
+            )}
+            <div className="mt-2.5 flex justify-center gap-1 rounded-full border border-border bg-card/70 p-1 sm:mt-3" role="tablist" aria-label="Product view">
+              {VIEWS.map(({ id, label, Icon }) => (
+                <button
+                  key={id}
+                  type="button"
+                  role="tab"
+                  aria-selected={view === id}
+                  onClick={() => setView(id)}
+                  className={cn(
+                    'inline-flex h-8 flex-1 items-center justify-center gap-1.5 rounded-full text-xs font-semibold transition-colors',
+                    view === id ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Details */}
@@ -110,10 +138,12 @@ export function ProductDialog({ category, index, open, onOpenChange, onStep }: P
               </WhatsAppButton>
               <Link
                 to={`/contact?subject=quote&product=${encodeURIComponent(product.name)}`}
-                className="group inline-flex h-12 flex-1 items-center justify-center gap-1.5 rounded-md border border-border px-4 text-sm font-semibold text-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                className="btn btn-ghost group h-12 flex-1 pl-5 pr-2.5 text-sm"
               >
                 Enquiry form
-                <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                <span className="btn-chip">
+                  <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                </span>
               </Link>
             </div>
 

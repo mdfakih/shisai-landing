@@ -26,10 +26,12 @@ src/
     home/         one file per home-page section
     layout/       Navigation, Footer, PageIntro, WhatsAppFab
     motion/       Reveal.tsx — IntersectionObserver reveal wrapper
-    products/     ProductCard, ProductDialog
-    shared/       SectionHeading, Marquee, CtaButtons, BrandLogo
+    products/     ProductCard, ProductDialog (photo / 3D tabs), ProductViewer3D
+    shared/       SectionHeading, Marquee, CtaButtons, BrandLogo, PhotoBackdrop
   hooks/          useReveal, useScrollProgress, useCountUp, useScrollSpy, useTheme
-  lib/gl/         hand-written WebGL viewer: math, lathe geometry, matcap, scene
+  lib/gl/         hand-written WebGL: glCore (shader, buffers), geometry + sweep
+                  (lathe, bends, tubes), models (one procedural part per catalogue
+                  family), triclampScene (hero), productScene (catalogue turntable)
   pages/          Home, Products, About, Certificates, Contact, NotFound
 scripts/
   optimize-images.mjs       converts new JPG/PNG assets to WebP, trims the logo
@@ -54,6 +56,10 @@ confirmed with the client before launch.
   WebGL viewer (`src/lib/gl`) that lazy-loads after first paint and cross-fades
   from an inline SVG. Surfaces of revolution are generated from 2D profiles and
   shaded with a procedural matcap. Falls back to the SVG without WebGL.
+- Every catalogue family also has a drag-to-rotate model in the product dialog
+  ("3D model" tab). Geometry is procedural, ~6 KB gzipped for all families, and
+  loads only when the tab is opened. Bends are swept tori, tees are overlapping
+  tubes, everything else is a surface of revolution.
 - Page motion is CSS transforms driven by IntersectionObserver and a rAF scroll
   listener. The anatomy section's steps are clickable and scroll to the matching
   assembly state.

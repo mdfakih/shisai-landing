@@ -17,7 +17,7 @@ export function StandardsStrip() {
       <Marquee
         items={items}
         duration={55}
-        className="py-4 text-foreground/70 [mask-image:linear-gradient(90deg,transparent,black_8%,black_92%,transparent)]"
+        className="py-4 text-foreground/70"
         itemClassName="font-mono text-[12px] uppercase tracking-[0.2em]"
       />
     </div>

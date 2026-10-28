@@ -119,7 +119,7 @@ export const DimensionOverlay = forwardRef<DimensionOverlayHandle, DimensionOver
         className={cn('pointer-events-none absolute inset-0 h-full w-full overflow-visible', className)}
         aria-hidden="true"
         fill="none"
-        stroke="hsl(var(--primary))"
+        stroke="hsl(var(--dim))"
         strokeWidth="1"
         fontFamily="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
         fontSize="11"
@@ -136,13 +136,13 @@ export const DimensionOverlay = forwardRef<DimensionOverlayHandle, DimensionOver
               </>
             ) : (
               <>
-                <circle ref={bind(d.id, 'dot')} r="2.4" fill="hsl(var(--primary))" stroke="hsl(var(--background))" strokeWidth="1.5" />
+                <circle ref={bind(d.id, 'dot')} r="2.4" fill="hsl(var(--dim))" stroke="hsl(var(--background))" strokeWidth="1.5" />
                 <line ref={bind(d.id, 'shoulder')} />
               </>
             )}
             <text
               ref={bind(d.id, 'text')}
-              fill="hsl(var(--primary))"
+              fill="hsl(var(--dim))"
               stroke="hsl(var(--background))"
               strokeWidth="3"
               strokeLinejoin="round"

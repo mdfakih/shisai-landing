@@ -1,8 +1,8 @@
-import { ArrowUpRight, FileCheck2 } from 'lucide-react';
+import { ArrowUpRight, BadgeCheck, FileCheck2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Reveal, RevealItem } from '@/components/motion/Reveal';
 import { SectionHeading } from '@/components/shared/SectionHeading';
-import { certificates } from '@/data/company';
+import { assessments, certificates } from '@/data/company';
 
 export function QualityStrip() {
   return (
@@ -16,7 +16,21 @@ export function QualityStrip() {
           lead="Our registrations and the Tri Clover® trademark are public documents. Material test certificates and dimensional reports are available on request with every order."
         />
 
-        <Reveal threshold={0.1} className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        {/* Brochure cover badges */}
+        <Reveal delay={120} className="mt-8 flex flex-wrap justify-center gap-2">
+          {assessments.map((a) => (
+            <span
+              key={a.label}
+              className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/[0.05] px-3.5 py-1.5 font-mono text-[11px] uppercase tracking-[0.16em] text-primary"
+            >
+              <BadgeCheck className="h-3.5 w-3.5" aria-hidden="true" />
+              {a.label}
+              <span className="text-primary/60">{a.detail}</span>
+            </span>
+          ))}
+        </Reveal>
+
+        <Reveal threshold={0.1} className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {certificates.map((c, i) => (
             <RevealItem key={c.id} index={i}>
               <Link

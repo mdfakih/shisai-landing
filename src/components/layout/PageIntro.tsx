@@ -15,6 +15,7 @@ interface PageIntroProps {
 export function PageIntro({ index, eyebrow, title, lead, aside, className }: PageIntroProps) {
   return (
     <section className={cn('relative overflow-hidden border-b border-border bg-surface pt-[calc(var(--nav-h)+3rem)] pb-12 md:pt-[calc(var(--nav-h)+5rem)] md:pb-16', className)}>
+      <div className="steel-grain absolute inset-0" aria-hidden="true" />
       <div className="grid-paper absolute inset-0 opacity-70 [mask-image:linear-gradient(180deg,black,transparent_90%)]" aria-hidden="true" />
       <div className="container relative">
         <div className="grid items-end gap-8 md:grid-cols-12">

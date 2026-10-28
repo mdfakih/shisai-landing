@@ -29,7 +29,7 @@ function StatBlock({ stat }: { stat: Stat }) {
 
 export function Capabilities() {
   return (
-    <section className="relative overflow-hidden bg-surface py-20 md:py-28">
+    <section className="relative overflow-hidden bg-surface pt-20 md:pt-28">
       <div className="container grid items-center gap-12 lg:grid-cols-12">
         {/* Photos */}
         <div className="relative lg:col-span-6">
@@ -93,12 +93,13 @@ export function Capabilities() {
         </div>
       </div>
 
-      <div className="mt-20 border-y border-border bg-card/60">
+      {/* Plant ticker, flush with the section edge */}
+      <div className="mt-16 border-y border-border bg-card/60 md:mt-24">
         <Marquee
-          items={machinery}
+          items={machinery.map((m) => m.name)}
           reverse
           duration={45}
-          className="py-3 text-foreground/55 [mask-image:linear-gradient(90deg,transparent,black_8%,black_92%,transparent)]"
+          className="py-3.5 text-foreground/65"
           itemClassName="font-mono text-[11px] uppercase tracking-[0.22em]"
           separator={<span className="mx-6 text-primary/50">/</span>}
         />

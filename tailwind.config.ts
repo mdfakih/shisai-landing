@@ -28,6 +28,7 @@ export default {
           foreground: "hsl(var(--primary-foreground))",
           bright: "hsl(var(--primary-bright))",
           deep: "hsl(var(--primary-deep))",
+          hover: "hsl(var(--primary-hover))",
         },
         steel: {
           DEFAULT: "hsl(var(--steel))",

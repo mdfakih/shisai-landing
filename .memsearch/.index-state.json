@@ -2,10 +2,10 @@
   "collection": "ms_shisai_landing_c4d95f82",
   "failed_files": [],
   "indexed_chunks": 1,
-  "indexed_files": 1,
-  "last_completed_at": "2026-10-27T05:32:10.287799Z",
-  "last_started_at": "2026-10-27T05:32:03.987383Z",
-  "last_success_at": "2026-10-27T05:32:10.287799Z",
+  "indexed_files": 2,
+  "last_completed_at": "2026-10-28T04:37:46.732670Z",
+  "last_started_at": "2026-10-28T04:37:43.249356Z",
+  "last_success_at": "2026-10-28T04:37:46.732670Z",
   "milvus_uri": "~/.memsearch/milvus.db",
   "operation": "index",
   "paths": [
@@ -13,6 +13,6 @@
   ],
   "schema_version": 1,
   "status": "ok",
-  "total_files": 1,
-  "updated_at": "2026-10-27T05:32:10.287799Z"
+  "total_files": 2,
+  "updated_at": "2026-10-28T04:37:46.732670Z"
 }

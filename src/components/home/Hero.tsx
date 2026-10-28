@@ -15,7 +15,7 @@ export function Hero() {
         aria-hidden="true"
       />
       <div
-        className="pointer-events-none absolute -right-40 top-10 h-[520px] w-[520px] rounded-full bg-[radial-gradient(closest-side,hsl(var(--primary)/0.08),transparent)]"
+        className="pointer-events-none absolute -right-40 top-10 h-[520px] w-[520px] rounded-full bg-[radial-gradient(closest-side,hsl(var(--primary)/0.08),transparent)] dark:bg-[radial-gradient(closest-side,hsl(var(--primary)/0.18),transparent)]"
         aria-hidden="true"
       />
 
@@ -25,19 +25,20 @@ export function Hero() {
           <Reveal delay={60}>
             <p className="eyebrow flex items-center gap-3">
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
-              Est. {company.foundedYear} · Vasai, India<span className="hidden sm:inline"> · SS304 / 316 / 316L</span>
+              Since {company.foundedYear} · Vasai, India<span className="hidden sm:inline"> · SS304 / 316 / 316L</span>
             </p>
           </Reveal>
           <Reveal delay={160}>
             <h1 className="display-xl mt-6 text-foreground">
-              <span className="metal-text">Stainless fittings</span>{' '}
-              <span className="block">for lines that can’t afford contamination.</span>
+              <span className="metal-text">Hygienic fittings.</span>{' '}
+              <span className="block">Connecting you to quality.</span>
             </h1>
           </Reveal>
           <Reveal delay={280}>
             <p className="mt-7 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Tri-clamp ferrules, bends, tees, reducers and clamps, machined and polished
-              in-house for pharmaceutical, food, dairy and biotech process lines.
+              Tri-clamp ferrules, bends, tees, reducers, valves and clamps, pressed, machined
+              and polished in-house for pharmaceutical, food, dairy and biotech lines that
+              cannot afford contamination.
             </p>
           </Reveal>
           <Reveal delay={380} className="mt-9 flex flex-col gap-3 sm:flex-row">
@@ -92,14 +93,6 @@ export function Hero() {
         </Reveal>
       </div>
 
-      {/* scroll cue */}
-      <div className="pointer-events-none absolute bottom-6 left-1/2 hidden -translate-x-1/2 items-center gap-3 md:flex" aria-hidden="true">
-        <span className="eyebrow">Scroll</span>
-        <span className="relative block h-10 w-px overflow-hidden bg-border">
-          <span className="absolute inset-x-0 top-0 h-1/2 bg-primary animate-[scrollcue_1.8s_ease-in-out_infinite]" />
-        </span>
-      </div>
-      <style>{`@keyframes scrollcue{0%{transform:translateY(-100%)}100%{transform:translateY(220%)}}`}</style>
     </section>
   );
 }

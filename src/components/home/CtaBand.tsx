@@ -1,11 +1,14 @@
 import { Mail } from 'lucide-react';
 import { Reveal } from '@/components/motion/Reveal';
 import { CallButton, WhatsAppButton } from '@/components/shared/CtaButtons';
+import { PhotoBackdrop } from '@/components/shared/PhotoBackdrop';
 import { company } from '@/data/company';
+import works from '@/assets/aboutUs/119264350-location-1650277650595-1000x1000.webp';
 
 export function CtaBand() {
   return (
     <section className="navy-surface relative overflow-hidden py-20 text-white md:py-28">
+      <PhotoBackdrop src={works} />
       {/* brushed steel diagonal */}
       <div
         className="metal-surface pointer-events-none absolute -right-24 -top-24 h-[140%] w-[38%] rotate-[14deg] opacity-[0.16] [mask-image:linear-gradient(90deg,transparent,black_30%)]"
@@ -28,7 +31,7 @@ export function CtaBand() {
           <WhatsAppButton message="Hello Shisai, I would like a quotation. Sizes / grade / finish / qty:" />
           <a
             href={`mailto:${company.emails[0]}?subject=${encodeURIComponent('Quotation request')}`}
-            className="group inline-flex h-12 items-center justify-center gap-2 rounded-md border border-white/25 px-5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+            className="btn group h-12 border border-white/25 px-6 text-sm text-white hover:-translate-y-0.5 hover:border-white/50 hover:bg-white/10"
           >
             <Mail className="h-4 w-4" />
             Email a drawing

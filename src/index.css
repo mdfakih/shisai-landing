@@ -17,21 +17,28 @@
     --popover: 0 0% 100%;
     --popover-foreground: 234 28% 13%;
 
-    /* Logo navy #2F2F78 */
-    --primary: 240 44% 33%;
+    /* Brochure navy #232B76: between the logo mark (#2A2D78) and the
+       cover / panel blocks (#1F2A6E). */
+    --primary: 234 54% 30%;
     --primary-foreground: 0 0% 100%;
-    --primary-bright: 236 68% 56%;
-    --primary-deep: 240 46% 22%;
+    --primary-bright: 230 62% 50%;
+    --primary-deep: 234 56% 21%;
+    /* Button hover fill and drawing-callout ink */
+    --primary-hover: 234 56% 21%;
+    --dim: 234 54% 30%;
+    --btn-top: 232 58% 40%;
+    --btn-bottom: 234 56% 26%;
 
-    --steel: 220 10% 62%;
-    --steel-light: 220 16% 90%;
-    --steel-dark: 222 12% 40%;
+    /* Brochure silver: neutral cool greys, not blue-tinted */
+    --steel: 218 8% 62%;
+    --steel-light: 220 12% 90%;
+    --steel-dark: 222 10% 40%;
 
     --secondary: 222 24% 95%;
     --secondary-foreground: 234 28% 13%;
     --muted: 222 20% 95%;
     --muted-foreground: 228 10% 42%;
-    --accent: 236 68% 56%;
+    --accent: 230 62% 50%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
@@ -39,7 +46,7 @@
 
     --border: 222 16% 89%;
     --input: 222 16% 86%;
-    --ring: 236 68% 56%;
+    --ring: 230 62% 50%;
     --radius: 0.375rem;
 
     /* Metal gradients */
@@ -69,34 +76,42 @@
   }
 
   .dark {
-    --background: 234 30% 7%;
-    --surface: 234 26% 10%;
+    /* Deep navy canvas, from the brochure's dark panels. Saturation stays
+       high so the page reads blue-black rather than grey-black. */
+    --background: 232 44% 7%;
+    --surface: 232 38% 10%;
     --foreground: 222 24% 93%;
 
-    --card: 234 26% 10%;
+    --card: 232 36% 11%;
     --card-foreground: 222 24% 93%;
-    --popover: 234 26% 11%;
+    --popover: 232 36% 12%;
     --popover-foreground: 222 24% 93%;
 
-    --primary: 236 72% 66%;
-    --primary-foreground: 234 30% 7%;
-    --primary-bright: 232 90% 76%;
-    --primary-deep: 240 46% 16%;
+    /* Brand navy lifted for dark canvas. Hue pulled toward 228 and
+       saturation up so it reads blue, not lavender, at this lightness. */
+    --primary: 228 86% 64%;
+    --primary-foreground: 0 0% 100%;
+    --primary-bright: 224 92% 76%;
+    --primary-deep: 232 58% 17%;
+    --primary-hover: 228 86% 58%;
+    --dim: 224 92% 76%;
+    --btn-top: 228 86% 68%;
+    --btn-bottom: 228 84% 56%;
 
     --steel: 220 10% 56%;
-    --steel-light: 224 14% 22%;
+    --steel-light: 230 20% 20%;
     --steel-dark: 220 12% 72%;
 
-    --secondary: 234 22% 14%;
+    --secondary: 232 30% 14%;
     --secondary-foreground: 222 24% 93%;
-    --muted: 234 22% 14%;
+    --muted: 232 30% 14%;
     --muted-foreground: 226 12% 66%;
-    --accent: 232 90% 76%;
-    --accent-foreground: 234 30% 7%;
+    --accent: 228 86% 64%;
+    --accent-foreground: 0 0% 100%;
 
-    --border: 232 18% 18%;
-    --input: 232 18% 23%;
-    --ring: 232 90% 76%;
+    --border: 232 26% 19%;
+    --input: 232 26% 24%;
+    --ring: 228 86% 64%;
   }
 
   * {
@@ -177,6 +192,19 @@
     background-image:
       repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0 1px, rgba(0, 0, 0, 0.04) 1px 3px),
       linear-gradient(135deg, #e9edf1 0%, #b8c0ca 35%, #f2f4f7 50%, #a7afba 68%, #d5dae1 100%);
+  }
+
+  /* Fine brushed grain for light page headers. CSS only. */
+  .steel-grain {
+    background-image:
+      repeating-linear-gradient(90deg, hsl(var(--foreground) / 0.035) 0 1px, transparent 1px 3px),
+      linear-gradient(180deg, hsl(var(--steel-light) / 0.55), transparent 70%);
+    mask-image: linear-gradient(180deg, black, transparent 85%);
+  }
+  .dark .steel-grain {
+    background-image:
+      repeating-linear-gradient(90deg, hsl(0 0% 100% / 0.025) 0 1px, transparent 1px 3px),
+      linear-gradient(180deg, hsl(var(--primary) / 0.12), transparent 70%);
   }
 
   /* Navy band with hairline steel grain */
@@ -283,6 +311,53 @@
     opacity: 0.8;
   }
 
+  /* Buttons. Pill, soft gradient, inner highlight, glow on hover. */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full font-semibold;
+    transition:
+      transform 0.3s var(--ease-out-expo),
+      box-shadow 0.3s var(--ease-out-expo),
+      filter 0.3s ease,
+      background-color 0.3s ease,
+      border-color 0.3s ease;
+  }
+  .btn:active {
+    transform: translateY(0) scale(0.99);
+  }
+  .btn-primary {
+    color: hsl(var(--primary-foreground));
+    background-image: linear-gradient(180deg, hsl(var(--btn-top)), hsl(var(--btn-bottom)));
+    box-shadow:
+      inset 0 1px 0 hsl(0 0% 100% / 0.22),
+      inset 0 -1px 0 hsl(0 0% 0% / 0.18),
+      0 10px 24px -12px hsl(var(--primary) / 0.7);
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.08) saturate(1.05);
+    box-shadow:
+      inset 0 1px 0 hsl(0 0% 100% / 0.28),
+      inset 0 -1px 0 hsl(0 0% 0% / 0.18),
+      0 18px 34px -14px hsl(var(--primary) / 0.8);
+  }
+  .btn-ghost {
+    @apply border border-border bg-card/70 text-foreground backdrop-blur;
+  }
+  .btn-ghost:hover {
+    transform: translateY(-2px);
+    border-color: hsl(var(--primary) / 0.45);
+    background-color: hsl(var(--primary) / 0.06);
+  }
+  /* Icon chip at the end of a button */
+  .btn-chip {
+    @apply flex h-7 w-7 shrink-0 items-center justify-center rounded-full;
+    background: hsl(0 0% 100% / 0.16);
+  }
+  .btn-ghost .btn-chip {
+    background: hsl(var(--primary) / 0.1);
+    color: hsl(var(--primary));
+  }
+
   /* Underline that draws itself */
   .link-draw {
     position: relative;
@@ -305,7 +380,17 @@
     transform-origin: left;
   }
 
-  /* Marquee track */
+  /* Marquee track. Edges fade so items slide in from nothing instead of
+     being chopped by the viewport. */
+  .marquee-group {
+    mask-image: linear-gradient(
+      90deg,
+      transparent,
+      black var(--marquee-fade, 48px),
+      black calc(100% - var(--marquee-fade, 48px)),
+      transparent
+    );
+  }
   .marquee {
     display: flex;
     width: max-content;
@@ -317,6 +402,24 @@
   }
   .marquee-group:hover .marquee {
     animation-play-state: paused;
+  }
+  /* Reduced motion (phone "remove animations" setting): no ticker. One
+     copy, wrapped and centred, so nothing is clipped. */
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-group {
+      mask-image: none;
+    }
+    .marquee {
+      width: auto;
+      flex-wrap: wrap;
+      justify-content: center;
+      row-gap: 0.5rem;
+      animation: none;
+      will-change: auto;
+    }
+    .marquee-dup {
+      display: none;
+    }
   }
 
   /* Spec table rows */
@@ -346,7 +449,7 @@
     --muted-foreground: 228 10% 42%;
     --card: 0 0% 100%;
     --border: 222 16% 86%;
-    --primary: 240 44% 33%;
+    --primary: 234 54% 30%;
     background: radial-gradient(90% 80% at 50% 40%, #f4f6f9, #e2e6ec);
   }
 
@@ -432,6 +535,18 @@
   .text-stroke {
     -webkit-text-stroke: 1px hsl(var(--primary) / 0.35);
     color: transparent;
+  }
+}
+
+/* Marquee loop. Declared here, not only in tailwind.config: Tailwind
+   emits config keyframes only when an animate-* utility is used, and the
+   .marquee component class references the name directly. */
+@keyframes marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
   }
 }
 
