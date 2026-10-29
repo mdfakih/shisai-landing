@@ -93,6 +93,23 @@ export default {
           "0%": { transform: "scale(0.9)", opacity: "0.7" },
           "100%": { transform: "scale(1.8)", opacity: "0" },
         },
+        // Swipe hint: hand presses at +d, drags to -d, lifts. Trail and peek share the timing.
+        "swipe-hand": {
+          "0%": { transform: "translateX(var(--swipe-d))", opacity: "0" },
+          "15%": { transform: "translateX(var(--swipe-d)) scale(0.9)", opacity: "1" },
+          "60%": { transform: "translateX(calc(var(--swipe-d) * -1)) scale(0.9)", opacity: "1" },
+          "78%, 100%": { transform: "translateX(calc(var(--swipe-d) * -1))", opacity: "0" },
+        },
+        "swipe-trail": {
+          "0%, 15%": { transform: "scaleX(0)", opacity: "1" },
+          "60%": { transform: "scaleX(1)", opacity: "1" },
+          "78%, 100%": { transform: "scaleX(1)", opacity: "0" },
+        },
+        "swipe-peek": {
+          "0%, 15%": { transform: "translateX(0)" },
+          "60%": { transform: "translateX(-28px)" },
+          "85%, 100%": { transform: "translateX(0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -101,6 +118,9 @@ export default {
         float: "float 7s ease-in-out infinite",
         sheen: "sheen 1.1s cubic-bezier(0.2, 0.7, 0.2, 1)",
         "pulse-ring": "pulse-ring 1.8s cubic-bezier(0.2, 0.6, 0.3, 1) infinite",
+        "swipe-hand": "swipe-hand 1.9s cubic-bezier(0.45, 0, 0.25, 1) infinite",
+        "swipe-trail": "swipe-trail 1.9s cubic-bezier(0.45, 0, 0.25, 1) infinite",
+        "swipe-peek": "swipe-peek 1.9s cubic-bezier(0.45, 0, 0.25, 1) 2",
       },
     },
   },
