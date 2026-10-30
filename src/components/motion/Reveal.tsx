@@ -18,6 +18,11 @@ interface RevealProps {
   once?: boolean;
   style?: CSSProperties;
   id?: string;
+  /**
+   * First-screen content. On pre-rendered pages it animates in from CSS as
+   * soon as the HTML arrives instead of waiting for scripts.
+   */
+  eager?: boolean;
 }
 
 const variantClass: Record<Variant, string> = {
@@ -40,6 +45,7 @@ export function Reveal({
   once,
   style,
   id,
+  eager,
 }: RevealProps) {
   const ref = useReveal<HTMLElement>({ threshold, once });
   const Comp = Tag as ElementType;
@@ -47,6 +53,7 @@ export function Reveal({
     <Comp
       ref={ref}
       id={id}
+      data-eager={eager ? '' : undefined}
       className={cn(variantClass[variant], className)}
       style={{ ...style, ['--reveal-delay' as string]: `${delay}ms` }}
     >

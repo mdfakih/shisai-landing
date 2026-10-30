@@ -27,6 +27,7 @@ const EDGE_PAD = 6;
 export const DimensionOverlay = forwardRef<DimensionOverlayHandle, DimensionOverlayProps>(
   function DimensionOverlay({ dimensions, className }, ref) {
     const svgRef = useRef<SVGSVGElement>(null);
+    const layerRef = useRef<SVGGElement>(null);
     const nodes = useRef<Record<string, Record<string, SVGElement | null>>>({});
 
     const bind = (id: string, key: string) => (el: SVGElement | null) => {
@@ -39,6 +40,8 @@ export const DimensionOverlay = forwardRef<DimensionOverlayHandle, DimensionOver
         const svg = svgRef.current;
         if (!svg) return;
         svg.setAttribute('viewBox', `0 0 ${ctx.width} ${ctx.height}`);
+        // Callouts leave with the part during a swap and return after it.
+        layerRef.current?.setAttribute('opacity', (ctx.reveal * ctx.reveal).toFixed(3));
         const cx = ctx.width / 2;
         const cy = ctx.height / 2;
 
@@ -84,14 +87,17 @@ export const DimensionOverlay = forwardRef<DimensionOverlayHandle, DimensionOver
               continue;
             }
             g.setAttribute('opacity', '1');
-            // Flip the leader to the other side if the label would leave the canvas.
+            // Put the label on its preferred side if it fits, else the roomier side,
+            // then pull the elbow in so the text never leaves a narrow canvas.
             const textW = d.label.length * CHAR_PX + SHOULDER + 10;
-            let ox = d.offset[0];
-            const wantsRight = ox >= 0;
-            const overflowsRight = p.x + ox + textW > ctx.width - EDGE_PAD;
-            const overflowsLeft = p.x + ox - textW < EDGE_PAD;
-            if ((wantsRight && overflowsRight) || (!wantsRight && overflowsLeft)) ox = -ox;
-            const lx = p.x + ox;
+            const reach = Math.abs(d.offset[0]);
+            const roomRight = ctx.width - EDGE_PAD - (p.x + reach);
+            const roomLeft = p.x - reach - EDGE_PAD;
+            const fitsRight = roomRight >= textW;
+            const fitsLeft = roomLeft >= textW;
+            const right = d.offset[0] >= 0 ? fitsRight || (!fitsLeft && roomRight >= roomLeft) : !fitsLeft && (fitsRight || roomRight > roomLeft);
+            const ox = right ? reach : -reach;
+            const lx = right ? Math.min(p.x + ox, ctx.width - EDGE_PAD - textW) : Math.max(p.x + ox, EDGE_PAD + textW);
             const ly = Math.min(ctx.height - EDGE_PAD, Math.max(EDGE_PAD + 8, p.y + d.offset[1]));
             setLine(n.line, p.x, p.y, lx, ly);
             const dot = n.dot as SVGCircleElement | null;
@@ -99,7 +105,6 @@ export const DimensionOverlay = forwardRef<DimensionOverlayHandle, DimensionOver
               dot.setAttribute('cx', String(p.x));
               dot.setAttribute('cy', String(p.y));
             }
-            const right = ox >= 0;
             const sx = lx + (right ? SHOULDER : -SHOULDER);
             setLine(n.shoulder, lx, ly, sx, ly);
             const t = n.text as SVGTextElement | null;
@@ -126,6 +131,7 @@ export const DimensionOverlay = forwardRef<DimensionOverlayHandle, DimensionOver
         letterSpacing="0.08em"
         style={{ paintOrder: 'stroke fill' }}
       >
+        <g ref={layerRef}>
         {dimensions.map((d) => (
           <g key={d.id} ref={bind(d.id, 'g')} opacity="0" className="transition-opacity duration-300">
             <line ref={bind(d.id, 'line')} strokeDasharray={d.kind === 'leader' ? '3 3' : undefined} />
@@ -151,6 +157,7 @@ export const DimensionOverlay = forwardRef<DimensionOverlayHandle, DimensionOver
             </text>
           </g>
         ))}
+        </g>
       </svg>
     );
   },

@@ -38,6 +38,14 @@ export function translation(x: number, y: number, z: number): Mat4 {
   return m;
 }
 
+export function scaling(s: number): Mat4 {
+  const m = identity();
+  m[0] = s;
+  m[5] = s;
+  m[10] = s;
+  return m;
+}
+
 export function rotationX(a: number): Mat4 {
   const c = Math.cos(a);
   const s = Math.sin(a);

@@ -2,11 +2,13 @@ import { box, cylinder, Geometry, lathe, mirrorZ, Profile } from './geometry';
 import { compose, Mat4, rotationY, translation } from './math';
 
 export type PartId = 'tube' | 'ferrule' | 'gasket' | 'clamp';
-export type GroupId = 'left' | 'right' | 'gasket' | 'clamp';
+/** Joint groups move apart when exploded; 'body' is a one-piece fitting. */
+export type GroupId = 'left' | 'right' | 'gasket' | 'clamp' | 'body';
 
 export interface PartSpec {
   id: string;
-  part: PartId;
+  /** Null for fittings that are not part of the joint story. */
+  part: PartId | null;
   group: GroupId;
   geometry: Geometry;
   /** Placement inside the group. */

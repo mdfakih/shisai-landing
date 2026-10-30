@@ -2,9 +2,10 @@
  * Procedural product models for the catalogue viewer. All sizes in mm at
  * DN50 (2") so every family reads at the same scale as the hero joint.
  */
-import { box, cylinder, Geometry, lathe, Profile } from './geometry';
+import { boundsOf, box, cylinder, Geometry, lathe, Profile } from './geometry';
 import { compose, Mat4, multiply, rotationX, rotationY, translation } from './math';
 import { buildParts } from './parts';
+import { BEND_R, BEND_TAN, FIT_RB, FIT_RF, FIT_RI, FIT_RO, RED_CONE, RED_HALF, TC_FACE, TEE_HALF } from './specs';
 import { bend, runTube, saddleTube, tube } from './sweep';
 
 export interface MeshSpec {
@@ -35,10 +36,10 @@ export interface ModelOptions {
   flange?: 'weldneck' | 'slipon' | 'blind' | 'threaded';
 }
 
-const RO = 25.4;
-const RI = 23.8;
-const RF = 32;
-const RB = 38.1; // 3" outer radius for reducers
+const RO = FIT_RO;
+const RI = FIT_RI;
+const RF = FIT_RF;
+const RB = FIT_RB;
 const STEEL: [number, number, number] = [1, 1, 1];
 const HOLE: [number, number, number] = [0.14, 0.15, 0.18];
 
@@ -47,9 +48,9 @@ const steel = (geometry: Geometry, local: Mat4 = translation(0, 0, 0)): MeshSpec
 /** Tri-clamp flange ring with its face at z = 0 and body toward -z. */
 function tcRing(ro = RO, ri = RI, rf = RF): Geometry {
   const p: Profile = [
-    [ri, -4.2],
-    [ro, -4.2],
-    [rf - 1.2, -4.2],
+    [ri, -TC_FACE],
+    [ro, -TC_FACE],
+    [rf - 1.2, -TC_FACE],
     [rf, -3.2],
     [rf, -0.6],
     [rf - 0.6, 0],
@@ -65,7 +66,7 @@ const faceOut = (at: [number, number, number], flip = false, ring = tcRing()): M
 
 function ferrule(o: ModelOptions): MeshSpec[] {
   const len = o.long ? 90 : 40;
-  const m = [steel(tube(RO, RI, -len, -4.2 + 0.01)), faceOut([0, 0, 0])];
+  const m = [steel(tube(RO, RI, -len, -TC_FACE + 0.01)), faceOut([0, 0, 0])];
   if (o.collar) m.push(steel(lathe([[RO - 0.1, -len + 6], [RO + 3.2, -len + 6], [RO + 3.2, -len + 18], [RO - 0.1, -len + 18]])));
   return m;
 }
@@ -77,8 +78,8 @@ function spool(): MeshSpec[] {
 
 function bendModel(o: ModelOptions): MeshSpec[] {
   const a = ((o.angle ?? 90) * Math.PI) / 180;
-  const R = 76;
-  const tan = 24;
+  const R = BEND_R;
+  const tan = BEND_TAN;
   const end: [number, number, number] = [R - R * Math.cos(a), 0, R * Math.sin(a)];
   const endFrame = compose(translation(...end), rotationY(a));
   const m = [steel(bend(RO, RI, R, a)), steel(tube(RO, RI, -tan, 0)), steel(tube(RO, RI, 0, tan), endFrame)];
@@ -90,7 +91,7 @@ function bendModel(o: ModelOptions): MeshSpec[] {
 }
 
 function tee(o: ModelOptions): MeshSpec[] {
-  const half = 55;
+  const half = TEE_HALF;
   const bro = o.unequal ? RO * 0.75 : RO;
   const bri = o.unequal ? RI * 0.75 : RI;
   const up = rotationX(-Math.PI / 2);
@@ -117,23 +118,25 @@ function shearY(g: Geometry, z0: number, z1: number, dy: number): Geometry {
 }
 
 function reducer(o: ModelOptions): MeshSpec[] {
+  const h = RED_HALF;
+  const k = RED_CONE;
   const p: Profile = [
-    [RB, -38],
-    [RB, -22],
-    [RO, 22],
-    [RO, 38],
-    [RI, 38],
-    [RI, 22],
-    [RB - 1.6, -22],
-    [RB - 1.6, -38],
+    [RB, -h],
+    [RB, -k],
+    [RO, k],
+    [RO, h],
+    [RI, h],
+    [RI, k],
+    [RB - 1.6, -k],
+    [RB - 1.6, -h],
   ];
   let body = lathe(p);
-  if (o.eccentric) body = shearY(body, -22, 22, RB - RO);
+  if (o.eccentric) body = shearY(body, -k, k, RB - RO);
   const m = [steel(body)];
   if (o.tc) {
-    const small = o.eccentric ? translation(0, -(RB - RO), 38) : translation(0, 0, 38);
+    const small = o.eccentric ? translation(0, -(RB - RO), h) : translation(0, 0, h);
     m.push(steel(tcRing(), small));
-    m.push(steel(tcRing(RB, RB - 1.6, RB + 6.6), compose(translation(0, 0, -38), rotationY(Math.PI))));
+    m.push(steel(tcRing(RB, RB - 1.6, RB + 6.6), compose(translation(0, 0, -h), rotationY(Math.PI))));
   }
   return m;
 }
@@ -186,7 +189,8 @@ function flange(kind: ModelOptions['flange'] = 'slipon'): MeshSpec[] {
   return m;
 }
 
-function build(kind: ModelKind, o: ModelOptions): MeshSpec[] {
+/** Un-centred meshes in the model's own frame (the frame the builders use). */
+export function buildMeshes(kind: ModelKind, o: ModelOptions = {}): MeshSpec[] {
   switch (kind) {
     case 'ferrule':
       return ferrule(o);
@@ -211,24 +215,7 @@ function build(kind: ModelKind, o: ModelOptions): MeshSpec[] {
 
 /** Recentre on the bounding box and derive framing extents. */
 function centre(meshes: MeshSpec[]): ModelSpec {
-  const min = [Infinity, Infinity, Infinity];
-  const max = [-Infinity, -Infinity, -Infinity];
-  for (const m of meshes) {
-    const p = m.geometry.positions;
-    const l = m.local;
-    for (let i = 0; i < p.length; i += 3) {
-      const x = p[i];
-      const y = p[i + 1];
-      const z = p[i + 2];
-      const w = [l[0] * x + l[4] * y + l[8] * z + l[12], l[1] * x + l[5] * y + l[9] * z + l[13], l[2] * x + l[6] * y + l[10] * z + l[14]];
-      for (let k = 0; k < 3; k++) {
-        if (w[k] < min[k]) min[k] = w[k];
-        if (w[k] > max[k]) max[k] = w[k];
-      }
-    }
-  }
-  const c = [0, 1, 2].map((k) => (min[k] + max[k]) / 2);
-  const d = [0, 1, 2].map((k) => max[k] - min[k]);
+  const { centre: c, size: d } = boundsOf(meshes);
   const shift = translation(-c[0], -c[1], -c[2]);
   const radius = Math.hypot(d[0], d[2]) / 2;
   return {
@@ -266,5 +253,5 @@ export function modelFor(categoryId: string, productName: string): ModelSpec {
     }
   };
   const [kind, opts] = resolve();
-  return centre(build(kind, opts));
+  return centre(buildMeshes(kind, opts));
 }

@@ -1,3 +1,5 @@
+import type { Mat4 } from './math';
+
 /**
  * Geometry generators. Everything in the tri-clamp joint except the lugs is a
  * surface of revolution, so a closed 2D profile revolved around Z covers it.
@@ -91,3 +93,31 @@ export const cylinder = (r: number, z0: number, z1: number, segments = 48): Geom
     ],
     segments,
   );
+
+export interface Bounds {
+  centre: [number, number, number];
+  size: [number, number, number];
+}
+
+/** Axis-aligned bounds of meshes after their placement matrices. */
+export function boundsOf(meshes: ReadonlyArray<{ geometry: Geometry; local: Mat4 }>): Bounds {
+  const min = [Infinity, Infinity, Infinity];
+  const max = [-Infinity, -Infinity, -Infinity];
+  for (const m of meshes) {
+    const p = m.geometry.positions;
+    const l = m.local;
+    for (let i = 0; i < p.length; i += 3) {
+      const x = p[i];
+      const y = p[i + 1];
+      const z = p[i + 2];
+      const w = [l[0] * x + l[4] * y + l[8] * z + l[12], l[1] * x + l[5] * y + l[9] * z + l[13], l[2] * x + l[6] * y + l[10] * z + l[14]];
+      for (let k = 0; k < 3; k++) {
+        if (w[k] < min[k]) min[k] = w[k];
+        if (w[k] > max[k]) max[k] = w[k];
+      }
+    }
+  }
+  const at = (k: number) => (min[k] + max[k]) / 2;
+  const span = (k: number) => max[k] - min[k];
+  return { centre: [at(0), at(1), at(2)], size: [span(0), span(1), span(2)] };
+}
