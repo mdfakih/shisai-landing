@@ -177,29 +177,6 @@ const Navigation = () => {
         </div>
       </div>
 
-      <style>{`
-        .mobile-link {
-          display: flex; align-items: center; gap: 1rem;
-          font-size: 2rem; line-height: 1.1; font-weight: 700; letter-spacing: -0.03em;
-          padding: 0.85rem 0; border-bottom: 1px solid hsl(var(--border));
-          color: hsl(var(--foreground));
-          opacity: 0; transform: translateY(14px);
-          transition: opacity .5s var(--ease-out-expo), transform .6s var(--ease-out-expo), color .3s;
-        }
-        #mobile-menu.visible .mobile-link { opacity: 1; transform: none; }
-        /* Current page. NavLink sets aria-current; plain utilities can't beat
-           the unlayered .mobile-link color above, so style it here. */
-        .mobile-link[aria-current="page"] {
-          color: hsl(var(--primary-bright));
-          border-bottom-color: hsl(var(--primary-bright) / 0.5);
-        }
-        .mobile-link[aria-current="page"] .eyebrow { color: hsl(var(--primary-bright)); }
-        .mobile-link[aria-current="page"]::after {
-          content: ""; margin-left: auto; width: 0.5rem; height: 0.5rem; border-radius: 9999px;
-          background: hsl(var(--primary-bright));
-          box-shadow: 0 0 0 4px hsl(var(--primary-bright) / 0.18);
-        }
-      `}</style>
     </>
   );
 };

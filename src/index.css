@@ -2,6 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Archivo, self-hosted: one variable file covers weights 400-800, so no
+   third-party connections before first paint. latin is preloaded in
+   index.html; latin-ext only downloads if a page uses its characters. */
+@font-face {
+  font-family: "Archivo";
+  font-style: normal;
+  font-weight: 400 800;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("/fonts/archivo-v25-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Archivo";
+  font-style: normal;
+  font-weight: 400 800;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("/fonts/archivo-v25-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
 /* ------------------------------------------------------------------
    Shisai design tokens. White canvas, brand navy, brushed steel.
    All colours HSL so Tailwind alpha modifiers work.
@@ -480,6 +502,7 @@
    ------------------------------------------------------------------ */
 @layer utilities {
   .reveal {
+    --reveal-from: translate3d(0, 22px, 0);
     opacity: 0;
     transform: translate3d(0, 22px, 0);
     transition:
@@ -489,13 +512,24 @@
     will-change: opacity, transform;
   }
   .reveal-left {
+    --reveal-from: translate3d(-28px, 0, 0);
     transform: translate3d(-28px, 0, 0);
   }
   .reveal-right {
+    --reveal-from: translate3d(28px, 0, 0);
     transform: translate3d(28px, 0, 0);
   }
   .reveal-scale {
+    --reveal-from: scale(0.96);
     transform: scale(0.96);
+  }
+  /* Pre-rendered pages: first-screen reveals play from CSS so they don't wait
+     for scripts. Same curves and delays as the transitions; the fill holds
+     the end state, so `.is-in` arriving later changes nothing. */
+  [data-prerendered] .reveal[data-eager] {
+    animation:
+      reveal-fade 0.8s var(--ease-out-expo) var(--reveal-delay, 0ms) both,
+      reveal-move 0.9s var(--ease-out-expo) var(--reveal-delay, 0ms) both;
   }
   /* Curtain wipe. A clipped element never intersects in Chromium, so the
      element stays visible and a pseudo-element slides off it instead. */
@@ -566,6 +600,24 @@
   }
 }
 
+/* First-screen reveal on pre-rendered pages (see .reveal[data-eager]) */
+@keyframes reveal-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes reveal-move {
+  from {
+    transform: var(--reveal-from);
+  }
+  to {
+    transform: none;
+  }
+}
+
 /* Route fade */
 .page-enter {
   animation: page-in 0.5s var(--ease-out-expo) both;
@@ -591,6 +643,7 @@
     opacity: 1 !important;
     transform: none !important;
     transition: none !important;
+    animation: none !important;
   }
   .reveal-clip::after {
     display: none;
@@ -604,4 +657,29 @@
   .sheen::after {
     display: none;
   }
+}
+
+/* Mobile menu links. Moved out of an inline <style> in Navigation (React
+   escapes quotes in server-rendered style text). Kept unlayered and last so
+   it still beats utilities, as the inline block did. */
+.mobile-link {
+  display: flex; align-items: center; gap: 1rem;
+  font-size: 2rem; line-height: 1.1; font-weight: 700; letter-spacing: -0.03em;
+  padding: 0.85rem 0; border-bottom: 1px solid hsl(var(--border));
+  color: hsl(var(--foreground));
+  opacity: 0; transform: translateY(14px);
+  transition: opacity .5s var(--ease-out-expo), transform .6s var(--ease-out-expo), color .3s;
+}
+#mobile-menu.visible .mobile-link { opacity: 1; transform: none; }
+/* Current page. NavLink sets aria-current; plain utilities can't beat
+   the unlayered .mobile-link color above, so style it here. */
+.mobile-link[aria-current="page"] {
+  color: hsl(var(--primary-bright));
+  border-bottom-color: hsl(var(--primary-bright) / 0.5);
+}
+.mobile-link[aria-current="page"] .eyebrow { color: hsl(var(--primary-bright)); }
+.mobile-link[aria-current="page"]::after {
+  content: ""; margin-left: auto; width: 0.5rem; height: 0.5rem; border-radius: 9999px;
+  background: hsl(var(--primary-bright));
+  box-shadow: 0 0 0 4px hsl(var(--primary-bright) / 0.18);
 }

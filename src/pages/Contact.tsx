@@ -120,16 +120,23 @@ const Contact = () => {
   const [params] = useSearchParams();
   const productNames = useMemo(allProductNames, []);
 
-  const initialSubject = (subjects.find((s) => s.id === params.get('subject'))?.id ?? 'quote') as Enquiry['subject'];
   const [data, setData] = useState<Enquiry>({
     name: '',
     company: '',
     email: '',
     phone: '',
-    subject: initialSubject,
-    product: params.get('product') ?? '',
+    subject: 'quote',
+    product: '',
     message: '',
   });
+
+  // Prefill from ?subject= and ?product= after hydration; the pre-rendered page has no query.
+  useEffect(() => {
+    const subject = subjects.find((s) => s.id === params.get('subject'))?.id as Enquiry['subject'] | undefined;
+    const product = params.get('product');
+    if (!subject && !product) return;
+    setData((d) => ({ ...d, ...(subject && { subject }), ...(product && { product }) }));
+  }, [params]);
   const [errors, setErrors] = useState<Errors>({});
   const [channel, setChannel] = useState<'whatsapp' | 'email'>('whatsapp');
 

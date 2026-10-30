@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, Mail, MapPin, Phone } from 'lucide-react';
 import { BrandLogo } from '@/components/shared/BrandLogo';
@@ -5,7 +6,9 @@ import { company, whatsappLink } from '@/data/company';
 import { productCategories } from '@/data/products';
 
 const Footer = () => {
-  const year = new Date().getFullYear();
+  // Build year in the pre-rendered HTML, the visitor's year once mounted.
+  const [year, setYear] = useState(__BUILD_YEAR__);
+  useEffect(() => setYear(new Date().getFullYear()), []);
 
   return (
     <footer className="relative border-t border-border bg-surface">

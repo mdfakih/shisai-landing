@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import Navigation from '@/components/layout/Navigation';
@@ -39,16 +39,15 @@ const AppRoutes = () => {
   );
 };
 
+/** The whole site. The router comes from the entry: BrowserRouter in the browser, StaticRouter when pre-rendering. */
 const App = () => (
   <TooltipProvider>
     <Toaster />
-    <BrowserRouter>
-      <ScrollToTop />
-      <Navigation />
-      <AppRoutes />
-      <Footer />
-      <WhatsAppFab />
-    </BrowserRouter>
+    <ScrollToTop />
+    <Navigation />
+    <AppRoutes />
+    <Footer />
+    <WhatsAppFab />
   </TooltipProvider>
 );
 

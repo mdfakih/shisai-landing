@@ -9,10 +9,12 @@ const isTouch = () =>
 
 /** True on phones/tablets, where swiping is the main way to browse. */
 export function useCoarsePointer() {
-  const [touch, setTouch] = useState(isTouch);
+  // Starts false like the pre-rendered HTML; the effect corrects it on mount.
+  const [touch, setTouch] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia('(hover: none) and (pointer: coarse)');
     const sync = () => setTouch(mq.matches);
+    sync();
     // Safari < 14 only has the legacy listener API.
     if (mq.addEventListener) {
       mq.addEventListener('change', sync);

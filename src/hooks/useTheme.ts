@@ -1,9 +1,12 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 
 export type Theme = 'light' | 'dark';
 
 const STORAGE_KEY = 'theme';
 const META_COLORS: Record<Theme, string> = { light: '#232b76', dark: '#0a0c1a' };
+
+// Layout effects warn on the server; this runs the same code in the browser before paint.
+const useIsoLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
 const readTheme = (): Theme => {
   if (typeof document === 'undefined') return 'light';
@@ -26,9 +29,13 @@ const applyTheme = (theme: Theme) => {
 /**
  * Light / dark switch. The initial class is set by an inline script in
  * index.html before first paint, so this hook only reads and toggles it.
+ * State starts at 'light' like the pre-rendered HTML and syncs before paint,
+ * so hydration sees matching markup.
  */
 export function useTheme() {
-  const [theme, setTheme] = useState<Theme>(readTheme);
+  const [theme, setTheme] = useState<Theme>('light');
+
+  useIsoLayoutEffect(() => setTheme(readTheme()), []);
 
   useEffect(() => {
     // Follow OS changes only while the user has not chosen explicitly.

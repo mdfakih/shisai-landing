@@ -23,18 +23,9 @@ export function ThemeToggle({ theme, onToggle, className }: ThemeToggleProps) {
         className,
       )}
     >
-      <Sun
-        className={cn(
-          'absolute h-[18px] w-[18px] transition-all duration-500 [transition-timing-function:var(--ease-out-expo)]',
-          dark ? 'rotate-90 scale-0 opacity-0' : 'rotate-0 scale-100 opacity-100',
-        )}
-      />
-      <Moon
-        className={cn(
-          'absolute h-[18px] w-[18px] transition-all duration-500 [transition-timing-function:var(--ease-out-expo)]',
-          dark ? 'rotate-0 scale-100 opacity-100' : '-rotate-90 scale-0 opacity-0',
-        )}
-      />
+      {/* Icon state follows the html.dark class, so it is right from the first paint. */}
+      <Sun className="absolute h-[18px] w-[18px] rotate-0 scale-100 opacity-100 transition-all duration-500 [transition-timing-function:var(--ease-out-expo)] dark:rotate-90 dark:scale-0 dark:opacity-0" />
+      <Moon className="absolute h-[18px] w-[18px] -rotate-90 scale-0 opacity-0 transition-all duration-500 [transition-timing-function:var(--ease-out-expo)] dark:rotate-0 dark:scale-100 dark:opacity-100" />
     </button>
   );
 }

@@ -19,7 +19,7 @@ export function PageIntro({ index, eyebrow, title, lead, aside, className }: Pag
       <div className="grid-paper absolute inset-0 opacity-70 [mask-image:linear-gradient(180deg,black,transparent_90%)]" aria-hidden="true" />
       <div className="container relative">
         <div className="grid items-end gap-8 md:grid-cols-12">
-          <Reveal className="min-w-0 md:col-span-8">
+          <Reveal eager className="min-w-0 md:col-span-8">
             <p className="eyebrow mb-4 flex items-center gap-3">
               <span className="text-primary">{index}</span>
               <span className="h-px w-6 bg-border" />
@@ -29,7 +29,7 @@ export function PageIntro({ index, eyebrow, title, lead, aside, className }: Pag
             {lead && <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">{lead}</p>}
           </Reveal>
           {aside && (
-            <Reveal delay={150} className="md:col-span-4 md:justify-self-end">
+            <Reveal eager delay={150} className="md:col-span-4 md:justify-self-end">
               {aside}
             </Reveal>
           )}

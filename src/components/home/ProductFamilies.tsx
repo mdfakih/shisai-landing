@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Reveal, RevealItem } from '@/components/motion/Reveal';
 import { SectionHeading } from '@/components/shared/SectionHeading';
 import { productCategories } from '@/data/products';
-import { cn } from '@/lib/utils';
+import { cn, lowFetchPriority } from '@/lib/utils';
 
 /** Six families in a bento layout; the first gets the hero slot. */
 export function ProductFamilies() {
@@ -55,6 +55,7 @@ export function ProductFamilies() {
                       src={cover}
                       alt={cat.name}
                       loading="lazy"
+                      {...lowFetchPriority}
                       decoding="async"
                       width={560}
                       height={560}

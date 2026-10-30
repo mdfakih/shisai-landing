@@ -6,6 +6,7 @@ import { useCountUp } from '@/hooks/useCountUp';
 import { machinery, stats, Stat } from '@/data/company';
 import pressShop from '@/assets/aboutUs/119264350-location-1650277650595-500x500-photoutils-com--1000x1000.webp';
 import polishing from '@/assets/aboutUs/119264350-location-1653469114346-500x500-photoutils-com--1000x1000.webp';
+import { lowFetchPriority } from '@/lib/utils';
 
 const points = [
   'Pressing, machining and polishing under one roof',
@@ -39,6 +40,7 @@ export function Capabilities() {
               src={pressShop}
               alt="Power press line at the Shisai works, Vasai"
               loading="lazy"
+              {...lowFetchPriority}
               decoding="async"
               width={960}
               height={1280}
@@ -59,6 +61,7 @@ export function Capabilities() {
               src={polishing}
               alt="Machining bay"
               loading="lazy"
+              {...lowFetchPriority}
               decoding="async"
               width={960}
               height={1280}

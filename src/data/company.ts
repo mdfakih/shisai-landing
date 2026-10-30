@@ -35,8 +35,8 @@ export const company = {
   ],
 } as const;
 
-export const yearsInBusiness = (): number =>
-  new Date().getFullYear() - company.foundedYear;
+/** From the build year, not the visitor's clock, so pre-rendered HTML hydrates cleanly. Redeploy yearly. */
+export const yearsInBusiness = (): number => __BUILD_YEAR__ - company.foundedYear;
 
 export interface Stat {
   value: number;
